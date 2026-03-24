@@ -1,13 +1,13 @@
 <template>
 
     <section class="py-xxl-10 pb-0" id="home">
-        <div class="bg-holder bg-size" style="background-image:url('../../../assets/img/gallery/hero-header-bg.png');background-position:top center;background-size:cover;">
+        <div class="bg-holder bg-size" style="background-image:url('@/assets/img/gallery/hero-header-bg.png');background-position:top center;background-size:cover;">
         </div>
         <!--/.bg-holder-->
 
         <div class="container">
           <div class="row align-items-center">
-            <div class="col-md-5 col-xl-6 col-xxl-7 order-0 order-md-1 text-end"><img class="pt-7 pt-md-0 w-100" src="../../../assets/img/illustrations/hero.png" alt="hero-header" /></div>
+            <div class="col-md-5 col-xl-6 col-xxl-7 order-0 order-md-1 text-end"><img class="pt-7 pt-md-0 w-100" src="@/assets/img/illustrations/hero.png" alt="hero-header" /></div>
             <div class="col-md-75 col-xl-6 col-xxl-5 text-md-start text-center py-8">
               <h1 class="fw-normal fs-6 fs-xxl-7">A trusted provider of </h1>
               <h1 class="fw-bolder fs-6 fs-xxl-7 mb-2">courier services.</h1>

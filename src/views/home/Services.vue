@@ -13,7 +13,7 @@
             <div class="col-md-4 pt-4 px-md-2 px-lg-3">
               <div class="card h-100 px-lg-5 card-span">
                 <div class="card-body d-flex flex-column justify-content-around">
-                  <div class="text-center pt-5"><img class="img-fluid" src="../../../assets/img/icons/services-1.svg" alt="..." />
+                  <div class="text-center pt-5"><img class="img-fluid" src="@/assets/img/icons/services-1.svg" alt="..." />
                     <h5 class="my-4">Business Services</h5>
                   </div>
                   <p>Offering home delivery around the city, where your products will be at your doorstep within 48-72 hours.</p>
@@ -36,7 +36,7 @@
             <div class="col-md-4 pt-4 px-md-2 px-lg-3">
               <div class="card h-100 px-lg-5 card-span">
                 <div class="card-body d-flex flex-column justify-content-around">
-                  <div class="text-center pt-5"><img class="img-fluid" src="../../../assets/img/icons/services-2.svg" alt="..." />
+                  <div class="text-center pt-5"><img class="img-fluid" src="@/assets/img/icons/services-2.svg" alt="..." />
                     <h5 class="my-4">Statewide Services</h5>
                   </div>
                   <p>Offering home delivery around the city, where your products will be at your doorstep within 48-72 hours.</p>
@@ -59,7 +59,7 @@
             <div class="col-md-4 pt-4 px-md-2 px-lg-3">
               <div class="card h-100 px-lg-5 card-span">
                 <div class="card-body d-flex flex-column justify-content-around">
-                  <div class="text-center pt-5"><img class="img-fluid" src="../../../assets/img/icons/services-3.svg" alt="..." />
+                  <div class="text-center pt-5"><img class="img-fluid" src="@/assets/img/icons/services-3.svg" alt="..." />
                     <h5 class="my-4">Personal Services</h5>
                   </div>
                   <p>You can trust us to safely deliver your most sensitive documents to the specific area in a short time.</p>
