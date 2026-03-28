@@ -9,9 +9,9 @@
           <div class="row align-items-center">
             <div class="col-md-5 col-xl-6 col-xxl-7 order-0 order-md-1 text-end"><img class="pt-7 pt-md-0 w-100" src="@/assets/img/illustrations/hero.png" alt="hero-header" /></div>
             <div class="col-md-75 col-xl-6 col-xxl-5 text-md-start text-center py-8">
-              <h1 class="fw-normal fs-6 fs-xxl-7">A trusted provider of </h1>
-              <h1 class="fw-bolder fs-6 fs-xxl-7 mb-2">courier services.</h1>
-              <p class="fs-1 mb-5">We deliver your products safely to <br />your home in a reasonable time. </p><a class="btn btn-primary me-2" href="#!" role="button">Get started<i class="fas fa-arrow-right ms-2"></i></a>
+              <h1 class="fw-normal fs-6 fs-xxl-7">Livrer en toute confiance avec</h1>
+              <h1 class="fw-bolder fs-6 fs-xxl-7 mb-2">Quick.</h1>
+              <p class="fs-1 mb-5">De nos mains à votre porte, en toute sécurité.</p><a class="btn btn-primary me-2" href="#!" role="button">Commencer<i class="fas fa-arrow-right ms-2"></i></a>
             </div>
           </div>
         </div>
