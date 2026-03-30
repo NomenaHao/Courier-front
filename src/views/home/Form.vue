@@ -20,7 +20,7 @@
                 </div>
                 <div class="mb-5">
                   <label class="form-label visually-hidden" for="validationTextarea">Message</label>
-                  <textarea class="form-control form-quriar-control is-invalid border-400" id="validationTextarea" placeholder="Message" style="height: 150px" required="required"></textarea>
+                  <textarea class="form-control form-quriar-control is-invalid border-400" id="validationTextarea" placeholder="Message" style="height: 150px" required="true"></textarea>
                 </div>
                 <div class="d-grid">
                   <button class="btn btn-primary" type="submit">Send Message<i class="fas fa-paper-plane ms-2"></i></button>

@@ -15,12 +15,12 @@
           <div class="slider-tab"></div>
         </div>
         <div class="form-inner">
-          <form action="#" class="login">
+          <form  class="login" @submit.prevent="handleLogin">
             <div class="field">
-              <input type="text" placeholder="Nom d'utilisateur" required>
+              <input type="text" v-model="loginForm.username" placeholder="Nom d'utilisateur" required>
             </div>
-            <div class="field">
-              <input type="password" placeholder="Mot de passe" required>
+            <div class="field"> 
+              <input type="password" v-model="loginForm.password" placeholder="Mot de passe" required>
             </div>
             <div class="pass-link"><a href="#">Mot de passe oublié?</a></div>
             <div class="field btn">
@@ -28,18 +28,19 @@
               <input type="submit" value="Connexion">
             </div>
           </form>
-          <form action="#" class="signup">
+          <!-- SIGNUP -->  
+          <form  class="signup" @submit.prevent="handleSignup">
             <div class="field">
-              <input type="text" placeholder="Nom d'utilisateur" required>
+              <input type="text" v-model="signupForm.username" placeholder="Nom d'utilisateur" required>
             </div>
             <div class="field">
-              <input type="password" placeholder="Mot de passe" required>
+              <input type="password" v-model="signupForm.password" placeholder="Mot de passe" required>
             </div>
             <div class="field">
-              <input type="password" placeholder="Confirmer le mot de passe" required>
+              <input type="password" v-model="signupForm.confirmPassword" placeholder="Confirmer le mot de passe" required>
             </div>
             <div class="field">
-              <select v-model="role" required>
+              <select v-model="signupForm.role" required>
                 <option disabled value="">Choisir un rôle</option>
                 <option value="client">Client</option>
                 <option value="courier">Livreur</option>
@@ -58,37 +59,96 @@
 </template>
 
 <script setup>
-import { onMounted,ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import api from '@/services/api'
 
+const loginForm = ref({
+  username: '',
+  password: ''
+})
+
+const signupForm = ref({
+  username: '',
+  password: '',
+  confirmPassword: '',
+  role: ''
+})
+
+
+// LOGIN
+const handleLogin = async () => {
+
+  try {
+
+    const response = await api.post('auth/login/', loginForm.value)
+
+    localStorage.setItem('access', response.data.access)
+    localStorage.setItem('refresh', response.data.refresh)
+
+    alert("Connexion réussie")
+
+    // redirection
+    window.location.href = '/home'
+
+  } catch (error) {
+
+    alert("Erreur login")
+
+  }
+
+}
+
+
+// REGISTER
+const handleSignup = async () => {
+
+  if (signupForm.value.password !== signupForm.value.confirmPassword) {
+
+    alert("Les mots de passe ne correspondent pas")
+    return
+
+  }
+
+  try {
+
+    await api.post('auth/register/', {
+      username: signupForm.value.username,
+      password: signupForm.value.password,
+      role: signupForm.value.role
+    })
+
+    alert("Compte créé")
+
+  } catch (error) {
+
+    alert("Erreur inscription")
+
+  }
+
+}
+
+
+// animation slide
 onMounted(() => {
+
   const loginText = document.querySelector('.title-text .login')
-  const loginForm = document.querySelector('form.login')
+  const loginFormDom = document.querySelector('form.login')
   const loginBtn = document.querySelector('label.login')
   const signupBtn = document.querySelector('label.signup')
-  const signupLink = document.querySelector('form .signup-link a')
 
-  if (signupBtn && loginForm && loginText) {
-    signupBtn.addEventListener('click', () => {
-      loginForm.style.marginLeft = '-50%'
-      loginText.style.marginLeft = '-50%'
-    })
-  }
+  signupBtn.addEventListener('click', () => {
+    loginFormDom.style.marginLeft = '-50%'
+    loginText.style.marginLeft = '-50%'
+  })
 
-  if (loginBtn && loginForm && loginText) {
-    loginBtn.addEventListener('click', () => {
-      loginForm.style.marginLeft = '0%'
-      loginText.style.marginLeft = '0%'
-    })
-  }
+  loginBtn.addEventListener('click', () => {
+    loginFormDom.style.marginLeft = '0%'
+    loginText.style.marginLeft = '0%'
+  })
 
-  if (signupLink && signupBtn) {
-    signupLink.addEventListener('click', (e) => {
-      e.preventDefault()
-      signupBtn.click()
-    })
-  }
 })
 </script>
+
 <style>
 .form-inner form .field select{
   height: 100%;
