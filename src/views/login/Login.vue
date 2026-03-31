@@ -3,19 +3,20 @@
   <div class="page">
     <div class="wrapper">
       <div class="title-text">
+       
         <div class="title login">Se connecter</div>
         <div class="title signup">S'inscrire</div>
       </div>
       <div class="form-container">
         <div class="slide-controls">
-          <input type="radio" name="slide" id="login" checked>
-          <input type="radio" name="slide" id="signup">
+          <input type="radio" name="slide" id="login" checked v-model="isLogin" :value="true">
+          <input type="radio" name="slide" id="signup" v-model="isLogin" :value="false">
           <label for="login" class="slide login">Connexion</label>
           <label for="signup" class="slide signup">Inscription</label>
           <div class="slider-tab"></div>
         </div>
         <div class="form-inner">
-          <form  class="login" @submit.prevent="handleLogin">
+          <form  class="login" @submit.prevent="handleLogin" :style="{ marginLeft: isLogin ? '0%' : '-50%' }">
             <div class="field">
               <input type="text" v-model="loginForm.username" placeholder="Nom d'utilisateur" required>
             </div>
@@ -25,11 +26,14 @@
             <div class="pass-link"><a href="#">Mot de passe oublié?</a></div>
             <div class="field btn">
               <div class="btn-layer"></div>
-              <input type="submit" value="Connexion">
+              <button type="submit" :disabled="loading" >
+                {{ loading ? 'Chargement...' : 'Connexion' }}
+              </button>
+              <!-- <input type="submit" value="Connexion"> -->
             </div>
           </form>
           <!-- SIGNUP -->  
-          <form  class="signup" @submit.prevent="handleSignup">
+          <form  class="signup" @submit.prevent="handleSignup" >
             <div class="field">
               <input type="text" v-model="signupForm.username" placeholder="Nom d'utilisateur" required>
             </div>
@@ -48,7 +52,9 @@
             </div>
             <div class="field btn">
               <div class="btn-layer"></div>
-              <input type="submit" value="S'inscrire">
+              <button type="submit" :disabled="loading">
+                {{ loading ? 'Chargement...' : "S'inscrire" }}
+              </button>
             </div>
           </form>
         </div>
@@ -62,6 +68,9 @@
 import { ref, onMounted } from 'vue'
 import api from '@/services/api'
 
+
+const isLogin = ref(true)
+
 const loginForm = ref({
   username: '',
   password: ''
@@ -74,18 +83,15 @@ const signupForm = ref({
   role: ''
 })
 
-
+const loading = ref(false)
 // LOGIN
 const handleLogin = async () => {
-
+  loading.value = true
   try {
-
     const response = await api.post('auth/login/', loginForm.value)
 
     localStorage.setItem('access', response.data.access)
     localStorage.setItem('refresh', response.data.refresh)
-
-    alert("Connexion réussie")
 
     // redirection
     window.location.href = '/home'
@@ -93,6 +99,7 @@ const handleLogin = async () => {
   } catch (error) {
 
     alert("Erreur login")
+    loading.value = false
 
   }
 
@@ -101,34 +108,38 @@ const handleLogin = async () => {
 
 // REGISTER
 const handleSignup = async () => {
+  const { username, password, confirmPassword, role } = signupForm.value
 
-  if (signupForm.value.password !== signupForm.value.confirmPassword) {
+  if (password !== confirmPassword) {
 
     alert("Les mots de passe ne correspondent pas")
     return
 
   }
-
+  loading.value = true
   try {
 
     await api.post('auth/register/', {
-      username: signupForm.value.username,
-      password: signupForm.value.password,
-      role: signupForm.value.role
+      username,
+      password,
+      role
     })
-
-    alert("Compte créé")
-
+    isLogin.value = true
+    loginForm.value.username = username
+    signupForm.value = { username: '', password: '', confirmPassword: '', role: '' }
+    loading.value = false
   } catch (error) {
 
     alert("Erreur inscription")
+    loading.value = false
+
 
   }
 
 }
 
 
-// animation slide
+// // animation slide
 onMounted(() => {
 
   const loginText = document.querySelector('.title-text .login')
@@ -388,6 +399,53 @@ form .btn input[type="submit"] {
   font-weight: 500;
   cursor: pointer;
 }
+
+form .btn button {
+  height: 100%;
+  width: 100%;
+  z-index: 1;
+  position: relative;
+  background: none;
+  border: none;
+  color: #fff;
+  padding-left: 0;
+  border-radius: 15px;
+  font-size: 20px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+form .btn button[disabled] {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.submit-btn {
+  position: relative;
+  overflow: hidden;
+  transition: background .15s, transform .12s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.submit-btn.is-loading {
+  color: transparent;
+  pointer-events: none;
+}
+.submit-btn.is-loading::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 26px;
+  height: 26px;
+  margin: -13px 0 0 -13px;
+  border-radius: 50%;
+  border: 3px solid rgba(255,255,255,0.22);
+  border-top-color: #fff;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
 </style>
 /* Responsive adjustments */
 <style scoped>
