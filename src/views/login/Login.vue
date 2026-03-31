@@ -43,7 +43,7 @@
               <select v-model="signupForm.role" required>
                 <option disabled value="">Choisir un rôle</option>
                 <option value="client">Client</option>
-                <option value="courier">Livreur</option>
+                <option value="livreur">Livreur</option>
               </select>
             </div>
             <div class="field btn">

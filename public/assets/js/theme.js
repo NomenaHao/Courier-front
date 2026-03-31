@@ -374,7 +374,27 @@ var scrollToTop = function scrollToTop() {
 // /* -------------------------------------------------------------------------- */
 
 
-docReady(navbarInit);
-docReady(detectorInit);
-docReady(scrollToTop);
+docReady(() => {
+  try {
+    if (typeof navbarInit === 'function' && document.querySelector('[data-navbar-on-scroll]')) navbarInit();
+  } catch (e) {
+    console.warn('navbarInit failed:', e);
+  }
+});
+
+docReady(() => {
+  try {
+    if (typeof detectorInit === 'function') detectorInit();
+  } catch (e) {
+    console.warn('detectorInit failed:', e);
+  }
+});
+
+docReady(() => {
+  try {
+    if (typeof scrollToTop === 'function') scrollToTop();
+  } catch (e) {
+    console.warn('scrollToTop failed:', e);
+  }
+});
 //# sourceMappingURL=theme.js.map

@@ -69,13 +69,15 @@
 /******/ 		var getter = module && module.__esModule ?
 /******/ 			function getDefault() { return module['default']; } :
 /******/ 			function getModuleExports() { return module; };
-/******/ 		__webpack_require__.d(getter, 'a', getter);
-/******/ 		return getter;
-/******/ 	};
-/******/
-/******/ 	// Object.prototype.hasOwnProperty.call
-/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
-/******/
+  const navbar = document.querySelector(Selector.NAVBAR);
+  // responsive nav collapsed - only attach if navbar exists
+  if (navbar) {
+    navbar.addEventListener('click',(e)=>{
+      if(e.target.classList.contains('nav-link') && window.innerWidth < _utils__WEBPACK_IMPORTED_MODULE_0__["default"].getBreakpoint(navbar)){
+        navbar.querySelector(Selector.NAVBAR_TOGGLER).click()
+      }
+    })
+  }
 /******/ 	// __webpack_public_path__
 /******/ 	__webpack_require__.p = "";
 /******/
