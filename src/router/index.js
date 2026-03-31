@@ -25,13 +25,24 @@ const routes = [
     path: '/home',
     name: 'Home',
     component: () => import('../views/home/HomePage.vue') 
+  },
+  {
+    path : '/profile',
+    name : 'Profile',
+    component : () => import('../views/user_profile/Profile.vue') 
   }
   
 ]
 
 const router = createRouter({
   history: createWebHistory(),
-  routes
+  routes,
+  scrollBehavior(to, from, savedPosition) {
+    if (to.hash) {
+      return { el: to.hash, behavior: 'smooth' }
+    }
+    return savedPosition || { top: 0 }
+  }
 })
 
 export default router

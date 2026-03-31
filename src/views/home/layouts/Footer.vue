@@ -1,6 +1,6 @@
 <template>
 
-      <section class="bg-900 pb-0 pt-5">
+      <section class="bg-900 pb-0 pt-5" id="findUs">
 
         <div class="container">
           <div class="row">
