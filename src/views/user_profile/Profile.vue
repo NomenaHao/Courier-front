@@ -20,8 +20,9 @@
                             <i class="fas fa-camera"></i>
                         </button>
                     </div>
-                    <h3 class="mt-3 mb-1">Alex Johnson</h3>
-                    <p class="text-muted mb-3">Senior Product Designer</p>
+                    <h3 class="mt-3 mb-1">{{ userProfile.username }}</h3>
+                    
+                    <p class="text-muted mb-3">Connecté en tant que : <b>{{ userProfile.role }}</b></p>
                     <div class="d-flex justify-content-center gap-2 mb-4">
                         <button class="btn btn-outline-primary"><i class="fas fa-envelope me-2"></i>Message</button>
                         <button class="btn btn-primary"><i class="fas fa-user-plus me-2"></i>Connect</button>
@@ -38,12 +39,10 @@
                             <div class="col-lg-3 border-end">
                                 <div class="p-4">
                                     <div class="nav flex-column nav-pills">
-                                        <a class="nav-link active" href="#"><i class="fas fa-user me-2"></i>Personal
-                                            Info</a>
-                                        <a class="nav-link" href="#"><i class="fas fa-lock me-2"></i>Security</a>
-                                        <a class="nav-link" href="#"><i class="fas fa-bell me-2"></i>Notifications</a>
-                                        <a class="nav-link" href="#"><i class="fas fa-credit-card me-2"></i>Billing</a>
-                                        <a class="nav-link" href="#"><i class="fas fa-chart-line me-2"></i>Activity</a>
+                                        <a class="nav-link active" href="#"><i class="fas fa-user me-2"></i>Informations personnels</a>
+                                        <a class="nav-link" href="#"><i class="fas fa-lock me-2"></i>Listes des livraisons</a>
+                                        <a class="nav-link" href="#"><i class="fas fa-bell me-2"></i>Listes des récuperations</a>
+                                        <a class="nav-link" href="#"><i class="fas fa-credit-card me-2"></i>Documents</a>
                                     </div>
                                 </div>
                             </div>
@@ -57,7 +56,7 @@
                                         <div class="row g-3">
                                             <div class="col-md-6">
                                                 <label class="form-label">First Name</label>
-                                                <input type="text" class="form-control" value="Alex">
+                                                <input type="text" class="form-control" :value="userProfile.username">
                                             </div>
                                             <div class="col-md-6">
                                                 <label class="form-label">Last Name</label>
@@ -65,11 +64,11 @@
                                             </div>
                                             <div class="col-md-6">
                                                 <label class="form-label">Email</label>
-                                                <input type="email" class="form-control" value="alex.johnson@example.com">
+                                                <input type="email" class="form-control">
                                             </div>
                                             <div class="col-md-6">
                                                 <label class="form-label">Phone</label>
-                                                <input type="tel" class="form-control" value="+1 (555) 123-4567">
+                                                <input type="tel" class="form-control"">
                                             </div>
                                             <div class="col-12">
                                                 <label class="form-label">Bio</label>
@@ -143,5 +142,25 @@
 
 <script setup>
 import  Navbar from '../home/layouts/Navbar.vue';
+import { ref, reactive, onMounted } from 'vue'
+import api from '@/services/api'
 
-</script>
+const userProfile = ref({
+    username: '',
+    email: '',
+    role: '',
+    is_verified: false
+});
+
+const  loading = ref(true);
+onMounted(async () => {
+    try {
+        const response = await api.get('/auth/profile/');
+        userProfile.value = response.data;
+    } catch (error) {
+        console.error('Error fetching profile:', error);
+    } finally {
+        loading.value = false;
+    }
+});
+</script> 
