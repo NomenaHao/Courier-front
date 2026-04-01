@@ -1,7 +1,6 @@
 <template>
-
-  <nav class="navbar navbar-expand-lg navbar-light fixed-top py-3 d-block"
-    data-navbar-on-scroll="data-navbar-on-scroll">
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top py-3 d-block bg-white shadow-sm"
+      data-navbar-on-scroll="data-navbar-on-scroll">
     <div class="container"><a class="navbar-brand" href="/home">
       <img src="@/assets/img/gallery/logo.png" height="45" alt="logo" />
     </a>
@@ -22,10 +21,8 @@
         </ul>
         
         <a class="btn btn-primary order-1 order-lg-0 ms-lg-3" href="/profile">Mon profil</a>
-        <form class="d-flex my-3 d-block d-lg-none">
-          <input class="form-control me-2 border-200 bg-light" type="search" placeholder="Search" aria-label="Search" />
-          <button class="btn btn-outline-primary" type="submit">Search</button>
-        </form>
+        <a href="" class="btn btn-primary order-1 order-lg-0 ms-lg-3"><i class="fa fa-sign-out" aria-hidden="true"></i></a>
+        
       </div>
     </div>
   </nav>
