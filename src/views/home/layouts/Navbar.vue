@@ -21,9 +21,18 @@
         </ul>
         
         <a class="btn btn-primary order-1 order-lg-0 ms-lg-3" href="/profile">Mon profil</a>
-        <a href="" class="btn btn-primary order-1 order-lg-0 ms-lg-3"><i class="fa fa-sign-out" aria-hidden="true"></i></a>
+        <button @click="logout" class="btn btn-outline-primary ms-lg-3">
+          <i class="fa fa-sign-out" aria-hidden="true"></i>
+        </button>
+        <!-- <a href="" class="btn btn-primary order-1 order-lg-0 ms-lg-3"><i class="fa fa-sign-out" aria-hidden="true"></i></a> -->
         
       </div>
     </div>
   </nav>
 </template>
+
+<script setup>
+import { useAuth } from '../../../composables/useAuth';
+
+const { logout } = useAuth();
+</script>
