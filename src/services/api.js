@@ -13,7 +13,6 @@ api.interceptors.request.use(config => {
   if (token && !isPublicRoute) {
     config.headers.Authorization = `Bearer ${token}`;
   } else {
-    // Supprimer explicitement le header pour les routes publiques
     delete config.headers.Authorization;
   }
 
