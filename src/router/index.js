@@ -17,7 +17,6 @@ const routes = [
   {
     path: '/',
     name: 'Login',
-    // Chargement paresseux (Lazy loading) pour la future page d'accueil
     component: () => import('../views/login/Login.vue') 
   },
  
