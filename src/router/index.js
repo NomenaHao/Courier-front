@@ -30,6 +30,12 @@ const routes = [
     path : '/profile',
     name : 'Profile',
     component : () => import('../views/user_profile/Profile.vue') 
+  },
+
+  {
+    path : '/deliverer',
+    name : 'Deliverer',
+    component : () => import('../views/deliver_list/Deliverer.vue') 
   }
   
 ]

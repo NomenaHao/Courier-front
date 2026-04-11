@@ -18,6 +18,9 @@
           <li class="nav-item px-2">
             <router-link class="nav-link" :to="{ path: '/home', hash: '#findUs' }">Nous contacter</router-link>
           </li>
+          <li class="nav-item px-2">
+            <router-link class="nav-link" :to="{ path: '/deliverer' }">Liste des livreurs</router-link>
+          </li>
         </ul>
         
         <a class="btn btn-primary order-1 order-lg-0 ms-lg-3" href="/profile">Mon profil</a>
