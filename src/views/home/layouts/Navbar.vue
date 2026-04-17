@@ -21,21 +21,51 @@
           <li class="nav-item px-2">
             <router-link class="nav-link" :to="{ path: '/deliverer' }">Liste des livreurs</router-link>
           </li>
+          <li v-if="isDeliverer" class="nav-item px-2">
+            <router-link class="nav-link" :to="{ path: '/deliveries' }">
+              <i class="bi bi-truck"></i> Mes livraisons
+            </router-link>
+          </li>
         </ul>
         
-        <a class="btn btn-primary order-1 order-lg-0 ms-lg-3" href="/profile">Mon profil</a>
-        <button @click="logout" class="btn btn-outline-primary ms-lg-3">
+        <router-link class="btn btn-primary order-1 order-lg-0 ms-lg-3" :to="{ path: '/profile' }">Mon profil</router-link>
+        <button @click="handleLogout" class="btn btn-outline-primary ms-lg-3">
           <i class="fa fa-sign-out" aria-hidden="true"></i>
         </button>
-        <!-- <a href="" class="btn btn-primary order-1 order-lg-0 ms-lg-3"><i class="fa fa-sign-out" aria-hidden="true"></i></a> -->
-        
       </div>
     </div>
   </nav>
 </template>
 
 <script setup>
-import { useAuth } from '../../../composables/useAuth';
+import { ref, onMounted, computed } from 'vue';
+import { useRouter } from 'vue-router';
+import api from '@/services/api';
 
-const { logout } = useAuth();
+const router = useRouter();
+const isDeliverer = ref(false);
+const userRole = ref(null);
+
+const handleLogout = () => {
+  localStorage.clear();
+  sessionStorage.clear();
+  router.push('/');
+};
+
+onMounted(() => {
+  // Récupérer les infos utilisateur depuis localStorage
+  const userData = localStorage.getItem('user');
+  console.log('User data:', userData);
+  
+  if (userData) {
+    try {
+      const user = JSON.parse(userData);
+      console.log('Parsed user:', user);
+      userRole.value = user.role;
+      isDeliverer.value = user.role === 'livreur';
+    } catch (error) {
+      console.error('Erreur parsing user data:', error);
+    }
+  }
+});
 </script>
