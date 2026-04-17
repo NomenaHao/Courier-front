@@ -1,29 +1,61 @@
-import { ref, onMounted, onUnmounted } from 'vue'
+import { onMounted, onUnmounted, ref } from "vue";
+
+import { API_BASE_URL } from "@/services/api";
 
 export function useWebSocket() {
-  const ws = ref(null)
-  const notifications = ref([])
+  const ws = ref(null);
+  const notifications = ref([]);
+  let reconnectTimer = null;
+  let shouldReconnect = true;
+
+  const buildWsUrl = () => {
+    const token = localStorage.getItem("access");
+    if (!token) return null;
+
+    const wsBase = API_BASE_URL.replace(/^http/, "ws").replace(/\/api\/?$/, "");
+    return `${wsBase}/ws/notifications/?token=${encodeURIComponent(token)}`;
+  };
 
   const connect = () => {
-    if (ws.value) return
-    // Utilise wss:// en prod, ws:// en dev
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-    ws.value = new WebSocket(`${protocol}//${window.location.host}/ws/notifications/`)
-
-    ws.value.onmessage = (e) => {
-      const data = JSON.parse(e.data)
-      notifications.value.unshift(data) // plus récent en haut
-      if (notifications.value.length > 5) notifications.value.pop() // limite à 5
+    if (ws.value && (ws.value.readyState === WebSocket.OPEN || ws.value.readyState === WebSocket.CONNECTING)) {
+      return;
     }
 
-    ws.value.onclose = () => setTimeout(connect, 3000) // reconnexion auto
-  }
+    const wsUrl = buildWsUrl();
+    if (!wsUrl) return;
 
-  const disconnect = () => ws.value?.close()
-  const clear = () => notifications.value = []
+    ws.value = new WebSocket(wsUrl);
 
-  onMounted(connect)
-  onUnmounted(disconnect)
+    ws.value.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      notifications.value.unshift(data);
+      if (notifications.value.length > 5) {
+        notifications.value.pop();
+      }
+    };
 
-  return { notifications, clear }
+    ws.value.onclose = () => {
+      ws.value = null;
+      if (!shouldReconnect) return;
+      reconnectTimer = setTimeout(connect, 3000);
+    };
+  };
+
+  const disconnect = () => {
+    shouldReconnect = false;
+    if (reconnectTimer) {
+      clearTimeout(reconnectTimer);
+      reconnectTimer = null;
+    }
+    ws.value?.close();
+  };
+
+  const clear = () => {
+    notifications.value = [];
+  };
+
+  onMounted(connect);
+  onUnmounted(disconnect);
+
+  return { notifications, clear, connect, disconnect };
 }

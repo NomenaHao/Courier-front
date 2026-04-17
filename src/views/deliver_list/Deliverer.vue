@@ -90,10 +90,10 @@ import Navbar from '../home/layouts/Navbar.vue';
 const search = ref('');
 
 const users = ref([
-  { id: 1, name: 'Jean Dupont', email: 'jean.dupont@email.com', role: 'Livreur', status: 'Actif' },
+  { id: 1, name: 'Jean Dupont', email: 'jean.dupont@email.com', role: 'deliverer', status: 'Actif' },
   { id: 2, name: 'Marie Lefèvre', email: 'marie.l@email.com', role: 'Admin', status: 'En pause' },
-  { id: 3, name: 'Lucas Bernard', email: 'lucas.b@email.com', role: 'Livreur', status: 'Inactif' },
-  { id: 4, name: 'Sophie Martin', email: 'sophie.m@email.com', role: 'Livreur', status: 'Actif' },
+  { id: 3, name: 'Lucas Bernard', email: 'lucas.b@email.com', role: 'deliverer', status: 'Inactif' },
+  { id: 4, name: 'Sophie Martin', email: 'sophie.m@email.com', role: 'deliverer', status: 'Actif' },
 ]);
 
 const filteredUsers = computed(() => {
