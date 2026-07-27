@@ -1,17 +1,31 @@
 <template>
   <main class="home-page" id="top">
-    <Hero />
+    <Hero :is-deliverer="isDeliverer" />
     <Services />
-    <Form />
+    <Form v-if="!isDeliverer" />
     <Footer />
   </main>
 </template>
 
 <script setup>
+import { ref, onMounted } from 'vue'
 import Hero from './Hero.vue'
 import Services from './Services.vue'
 import Footer from './layouts/Footer.vue'
 import Form from './Form.vue'
+
+const isDeliverer = ref(false)
+onMounted(() => {
+  const userData = localStorage.getItem('user')
+  if (userData) {
+    try {
+      const user = JSON.parse(userData)
+      isDeliverer.value = user.role === 'livreur'
+    } catch {
+      isDeliverer.value = false
+    }
+  }
+})
 </script>
 
 <style scoped>

@@ -4,7 +4,6 @@
       <div class="brand-glow"></div>
       <div class="brand-route"></div>
       <div class="brand-content">
-        <p class="brand-mark">Quick.</p>
         <h1 class="brand-title">De nos mains<br />à votre porte.</h1>
         <p class="brand-sub">Livraisons et récupérations simples, rapides, fiables.</p>
       </div>

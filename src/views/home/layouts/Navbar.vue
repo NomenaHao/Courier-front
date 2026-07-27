@@ -1,9 +1,8 @@
 <template>
   <header class="site-nav" :class="{ open: menuOpen, scrolled: isScrolled }">
-    <div class="nav-inner">
+    <div class="nav-bar">
       <router-link class="nav-brand" to="/home" @click="closeMenu">
         <img src="@/assets/img/gallery/logo.png" alt="" class="nav-logo" />
-        <span class="nav-wordmark">Quick<span>.</span></span>
       </router-link>
 
       <button
@@ -19,28 +18,20 @@
         <span></span>
       </button>
 
-      <div
-        class="nav-backdrop"
-        :class="{ show: menuOpen }"
-        aria-hidden="true"
-        @click="closeMenu"
-      ></div>
-
-      <nav id="site-nav-menu" class="nav-menu" :class="{ show: menuOpen }">
+      <nav class="nav-desktop" aria-label="Navigation principale">
         <div class="nav-links">
           <router-link
             v-for="link in visibleLinks"
-            :key="link.to.path + (link.to.hash || '') + link.label"
+            :key="'d-' + link.to.path + (link.to.hash || '') + link.label"
             class="nav-link"
             :to="link.to"
-            @click="closeMenu"
           >
             {{ link.label }}
           </router-link>
         </div>
 
         <div class="nav-actions">
-          <router-link class="user-chip" :to="{ path: '/profile' }" @click="closeMenu">
+          <router-link class="user-chip" :to="{ path: '/profile' }">
             <span class="user-avatar">{{ avatarLetter }}</span>
             <span class="user-meta">
               <strong>{{ displayName }}</strong>
@@ -54,12 +45,57 @@
               <polyline points="16 17 21 12 16 7" />
               <line x1="21" y1="12" x2="9" y2="12" />
             </svg>
-            <span class="logout-label">Déconnexion</span>
           </button>
         </div>
       </nav>
     </div>
   </header>
+
+  <Teleport to="body">
+    <div v-if="menuOpen" class="mobile-layer">
+      <div class="mobile-backdrop" @click="closeMenu"></div>
+
+      <nav id="site-nav-menu" class="mobile-drawer" aria-label="Menu mobile">
+        <div class="mobile-drawer-head">
+          <span class="nav-wordmark">Quick<span>.</span></span>
+          <button type="button" class="mobile-close" aria-label="Fermer" @click="closeMenu">
+            ✕
+          </button>
+        </div>
+
+        <div class="mobile-links">
+          <router-link
+            v-for="link in visibleLinks"
+            :key="'m-' + link.to.path + (link.to.hash || '') + link.label"
+            class="mobile-link"
+            :to="link.to"
+            @click="closeMenu"
+          >
+            {{ link.label }}
+          </router-link>
+        </div>
+
+        <div class="mobile-footer">
+          <router-link class="user-chip" :to="{ path: '/profile' }" @click="closeMenu">
+            <span class="user-avatar">{{ avatarLetter }}</span>
+            <span class="user-meta">
+              <strong>{{ displayName }}</strong>
+              <small>{{ roleLabel }}</small>
+            </span>
+          </router-link>
+
+          <button type="button" class="btn-logout mobile-logout" @click="handleLogout">
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+              <polyline points="16 17 21 12 16 7" />
+              <line x1="21" y1="12" x2="9" y2="12" />
+            </svg>
+            Déconnexion
+          </button>
+        </div>
+      </nav>
+    </div>
+  </Teleport>
 </template>
 
 <script setup>
@@ -90,20 +126,28 @@ const visibleLinks = computed(() => {
   const links = [
     { label: 'Accueil', to: { path: '/home' } },
     { label: 'Services', to: { path: '/home', hash: '#services' } },
-    { label: 'Commander', to: { path: '/home', hash: '#deliver_form' } },
   ]
+
+  if (!isDeliverer.value) {
+    links.push({ label: 'Commander', to: { path: '/home', hash: '#deliver_form' } })
+  }
 
   if (isClient.value) {
     links.push({ label: 'Mes commandes', to: { path: '/orders' } })
   }
+
   if (isDeliverer.value) {
     links.push({ label: 'Mes livraisons', to: { path: '/deliveries' } })
   }
+
   if (isAdmin.value) {
     links.push({ label: 'Administration', to: { path: '/admin' } })
   }
 
-  links.push({ label: 'Livreurs', to: { path: '/deliverer' } })
+  if (isClient.value || isAdmin.value) {
+    links.push({ label: 'Livreurs', to: { path: '/deliverer' } })
+  }
+
   return links
 })
 
@@ -175,30 +219,25 @@ onUnmounted(() => {
   --accent-deep: #d9480f;
   --line: #e4e0d8;
   --paper: #f7f4ef;
-  --navy: #0b1324;
 
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   z-index: 1040;
-  background: rgba(247, 244, 239, 0.88);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  background: rgba(247, 244, 239, 0.97);
   border-bottom: 1px solid transparent;
-  transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
   font-family: 'Outfit', system-ui, sans-serif;
 }
 
 .site-nav.scrolled,
 .site-nav.open {
-  background: rgba(247, 244, 239, 0.97);
   border-bottom-color: var(--line);
   box-shadow: 0 10px 30px rgba(16, 24, 40, 0.07);
 }
 
-.nav-inner {
-  position: relative;
+.nav-bar {
   max-width: 1180px;
   margin: 0 auto;
   padding: 0.75rem clamp(1rem, 3vw, 2rem);
@@ -214,8 +253,8 @@ onUnmounted(() => {
   align-items: center;
   gap: 0.65rem;
   flex-shrink: 0;
-  z-index: 2;
   color: var(--ink);
+  text-decoration: none;
 }
 
 .nav-logo {
@@ -238,8 +277,6 @@ onUnmounted(() => {
 
 .nav-toggle {
   display: none;
-  position: relative;
-  z-index: 2;
   width: 44px;
   height: 44px;
   border: 1px solid var(--line);
@@ -250,11 +287,7 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   gap: 5px;
-  transition: border-color 0.2s ease, background 0.2s ease;
-}
-
-.nav-toggle:hover {
-  border-color: var(--accent);
+  flex-shrink: 0;
 }
 
 .nav-toggle span {
@@ -277,11 +310,7 @@ onUnmounted(() => {
   transform: translateY(-7px) rotate(-45deg);
 }
 
-.nav-backdrop {
-  display: none;
-}
-
-.nav-menu {
+.nav-desktop {
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -304,6 +333,7 @@ onUnmounted(() => {
   font-size: 0.9rem;
   font-weight: 550;
   color: var(--ink-soft);
+  text-decoration: none;
   transition: color 0.2s ease;
 }
 
@@ -320,7 +350,8 @@ onUnmounted(() => {
   transition: transform 0.22s ease;
 }
 
-.nav-link:hover {
+.nav-link:hover,
+.nav-link.router-link-active {
   color: var(--ink);
 }
 
@@ -330,7 +361,6 @@ onUnmounted(() => {
 }
 
 .nav-link.router-link-active {
-  color: var(--ink);
   font-weight: 650;
 }
 
@@ -352,12 +382,12 @@ onUnmounted(() => {
   background: #fff;
   border: 1px solid var(--line);
   color: var(--ink);
-  transition: border-color 0.2s ease, transform 0.15s ease;
+  text-decoration: none;
+  transition: border-color 0.2s ease;
 }
 
 .user-chip:hover {
   border-color: var(--accent);
-  transform: translateY(-1px);
 }
 
 .user-avatar {
@@ -406,9 +436,8 @@ onUnmounted(() => {
   color: var(--ink);
   cursor: pointer;
   font-family: inherit;
-  font-size: 0.82rem;
+  font-size: 0.88rem;
   font-weight: 650;
-  transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
 }
 
 .btn-logout:hover {
@@ -417,8 +446,113 @@ onUnmounted(() => {
   background: rgba(249, 92, 25, 0.06);
 }
 
-.logout-label {
-  display: none;
+/* Drawer mobile — téléporté hors de la navbar (évite le bug backdrop-filter) */
+.mobile-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+}
+
+.mobile-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(11, 19, 36, 0.45);
+}
+
+.mobile-drawer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(88vw, 340px);
+  display: flex;
+  flex-direction: column;
+  background: #f7f4ef;
+  border-left: 1px solid #e4e0d8;
+  box-shadow: -18px 0 40px rgba(16, 24, 40, 0.18);
+  padding: 1rem 1.15rem 1.35rem;
+  overflow-y: auto;
+  animation: drawer-in 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.mobile-drawer-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid #e4e0d8;
+}
+
+.mobile-close {
+  width: 40px;
+  height: 40px;
+  border: 1px solid #e4e0d8;
+  background: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+  color: #101828;
+}
+
+.mobile-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  flex: 1;
+}
+
+.mobile-link {
+  display: block;
+  padding: 0.95rem 0.25rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #475467;
+  text-decoration: none;
+  border-bottom: 1px solid #e4e0d8;
+}
+
+.mobile-link.router-link-active,
+.mobile-link:hover {
+  color: #f95c19;
+}
+
+.mobile-footer {
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e4e0d8;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.mobile-footer .user-chip {
+  max-width: none;
+  width: 100%;
+  padding: 0.45rem 0.75rem 0.45rem 0.45rem;
+}
+
+.mobile-footer .user-meta {
+  display: flex;
+}
+
+.mobile-footer .user-avatar {
+  width: 40px;
+  height: 40px;
+  font-size: 1rem;
+}
+
+.mobile-logout {
+  width: 100%;
+  height: 46px;
+}
+
+@keyframes drawer-in {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
 }
 
 @media (max-width: 1100px) {
@@ -446,107 +580,8 @@ onUnmounted(() => {
     display: inline-flex;
   }
 
-  .nav-backdrop {
-    display: block;
-    position: fixed;
-    inset: 0;
-    background: rgba(11, 19, 36, 0.35);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.25s ease;
-    z-index: 0;
-  }
-
-  .nav-backdrop.show {
-    opacity: 1;
-    pointer-events: auto;
-  }
-
-  .nav-menu {
-    position: fixed;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    width: min(86vw, 340px);
-    flex-direction: column;
-    align-items: stretch;
-    justify-content: flex-start;
-    gap: 0;
-    padding: 5.25rem 1.25rem 1.5rem;
-    background: var(--paper);
-    border-left: 1px solid var(--line);
-    box-shadow: -18px 0 40px rgba(16, 24, 40, 0.12);
-    transform: translateX(104%);
-    transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
-    z-index: 1;
-    overflow-y: auto;
-  }
-
-  .nav-menu.show {
-    transform: translateX(0);
-  }
-
-  .nav-links {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.15rem;
-  }
-
-  .nav-link {
-    padding: 0.9rem 0.35rem;
-    font-size: 1rem;
-    border-bottom: 1px solid var(--line);
-  }
-
-  .nav-link::after {
+  .nav-desktop {
     display: none;
-  }
-
-  .nav-link.router-link-active {
-    color: var(--accent);
-  }
-
-  .nav-actions {
-    margin-top: auto;
-    padding: 1.25rem 0 0;
-    border-left: none;
-    border-top: 1px solid var(--line);
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.65rem;
-  }
-
-  .user-chip {
-    max-width: none;
-    width: 100%;
-    padding: 0.45rem 0.75rem 0.45rem 0.45rem;
-  }
-
-  .user-meta {
-    display: flex;
-  }
-
-  .user-avatar {
-    width: 40px;
-    height: 40px;
-    font-size: 1rem;
-  }
-
-  .user-meta strong {
-    font-size: 0.95rem;
-  }
-
-  .user-meta small {
-    font-size: 0.78rem;
-  }
-
-  .btn-logout {
-    width: 100%;
-    height: 46px;
-  }
-
-  .logout-label {
-    display: inline;
   }
 }
 

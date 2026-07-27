@@ -2,7 +2,6 @@
   <footer class="site-footer" id="findUs">
     <div class="footer-inner">
       <div class="footer-brand">
-        <p class="brand-mark">Quick.</p>
         <p class="brand-tag">Plus proche de vous, plus proche de vos besoins.</p>
       </div>
 

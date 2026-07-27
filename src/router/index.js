@@ -48,7 +48,7 @@ const routes = [
     path: '/deliverer',
     name: 'Deliverer',
     component: () => import('../views/deliver_list/Deliverer.vue'),
-    meta: { requiresAuth: true },
+    meta: { requiresAuth: true,roles: ['client', 'admin'] },
   },
   {
     path: '/admin',

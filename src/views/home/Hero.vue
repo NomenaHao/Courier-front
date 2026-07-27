@@ -5,26 +5,38 @@
 
     <div class="hero-inner">
       <div class="hero-copy">
-        <p class="hero-brand">Quick.</p>
         <h1 class="hero-title">Livrer en toute confiance.</h1>
-        <p class="hero-sub">De nos mains à votre porte, en toute sécurité.</p>
-        <a class="hero-cta" href="#deliver_form">
+        <p class="hero-sub">
+          {{ isDeliverer ? 'Consultez et gérez vos missions assignées.' : 'De nos mains à votre porte, en toute sécurité.' }}
+        </p>
+        <!-- Client / admin : passer commande -->
+        <a v-if="!isDeliverer" class="hero-cta" href="#deliver_form">
           Passer commande
           <span aria-hidden="true">→</span>
         </a>
+
+        <!-- Livreur : voir ses livraisons -->
+        <router-link v-else class="hero-cta" to="/deliveries">
+          Voir les livraisons
+          <span aria-hidden="true">→</span>
+        </router-link>
       </div>
 
       <div class="hero-visual">
-        <img
-          src="@/assets/img/illustrations/hero.png"
-          alt="Livraison Quick"
-          class="hero-img"
-        />
+        <img src="@/assets/img/illustrations/hero.png" alt="Livraison Quick" class="hero-img" />
       </div>
     </div>
   </section>
 </template>
 
+<script setup>
+defineProps({
+  isDeliverer: {
+    type: Boolean,
+    default: false,
+  },
+})
+</script>
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap');
 
@@ -56,13 +68,11 @@
   inset: 0;
   z-index: -1;
   background:
-    repeating-linear-gradient(
-      -18deg,
+    repeating-linear-gradient(-18deg,
       transparent 0,
       transparent 32px,
       rgba(255, 255, 255, 0.03) 32px,
-      rgba(255, 255, 255, 0.03) 33px
-    );
+      rgba(255, 255, 255, 0.03) 33px);
   mask-image: linear-gradient(to bottom, black 20%, transparent 90%);
   pointer-events: none;
 }
@@ -148,6 +158,7 @@
     opacity: 0;
     transform: translateY(14px);
   }
+
   to {
     opacity: 1;
     transform: none;
