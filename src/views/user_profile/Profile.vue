@@ -1,166 +1,290 @@
- 
 <template>
-    <Navbar />
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-
-<div class="bg-light">
-    <div class="container py-5">
-        <div class="row">
-            <!-- Profile Header -->
-            <div class="col-12 mb-4">
-                <div class="profile-header position-relative mb-4">
-                    <div class="position-absolute top-0 end-0 p-3">
-                        <button class="btn btn-light"><i class="fas fa-edit me-2"></i>Edit Cover</button>
-                    </div>
-                </div>
-                <div class="text-center">
-                    <div class="position-relative d-inline-block">
-                        <img src="https://randomuser.me/api/portraits/men/40.jpg" class="rounded-circle profile-pic" alt="Profile Picture">
-                        <button class="btn btn-primary btn-sm position-absolute bottom-0 end-0 rounded-circle">
-                            <i class="fas fa-camera"></i>
-                        </button>
-                    </div>
-                    <h3 class="mt-3 mb-1">{{ userProfile.username }}</h3>
-                    
-                    <p class="text-muted mb-3">Connecté en tant que : <b>{{ userProfile.role }}</b></p>
-                    <div class="d-flex justify-content-center gap-2 mb-4">
-                        <button class="btn btn-outline-primary"><i class="fas fa-envelope me-2"></i>Message</button>
-                        <button class="btn btn-primary"><i class="fas fa-user-plus me-2"></i>Connect</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Main Content -->
-            <div class="col-12">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body p-0">
-                        <div class="row g-0">
-                            <!-- Sidebar -->
-                            <div class="col-lg-3 border-end">
-                                <div class="p-4">
-                                    <div class="nav flex-column nav-pills">
-                                        <a class="nav-link active" href="#"><i class="fas fa-user me-2"></i>Informations personnels</a>
-                                        <a class="nav-link" href="#"><i class="fas fa-lock me-2"></i>Listes des livraisons</a>
-                                        <a class="nav-link" href="#"><i class="fas fa-bell me-2"></i>Listes des récuperations</a>
-                                        <a class="nav-link" href="#"><i class="fas fa-credit-card me-2"></i>Documents</a>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Content Area -->
-                            <div class="col-lg-9">
-                                <div class="p-4">
-                                    <!-- Personal Information -->
-                                    <div class="mb-4">
-                                        <h5 class="mb-4">Personal Information</h5>
-                                        <div class="row g-3">
-                                            <div class="col-md-6">
-                                                <label class="form-label">First Name</label>
-                                                <input type="text" class="form-control" :value="userProfile.username">
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label">Last Name</label>
-                                                <input type="text" class="form-control" value="Johnson">
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label">Email</label>
-                                                <input type="email" class="form-control">
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label">Phone</label>
-                                                <input type="tel" class="form-control"">
-                                            </div>
-                                            <div class="col-12">
-                                                <label class="form-label">Bio</label>
-                                                <textarea class="form-control" rows="4">Product designer with 5+ years of experience in creating user-centered digital solutions. Passionate about solving complex problems through simple and elegant designs.</textarea>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Settings Cards -->
-                                    <div class="row g-4 mb-4">
-                                        <div class="col-md-6">
-                                            <div class="settings-card card">
-                                                <div class="card-body">
-                                                    <div class="d-flex justify-content-between align-items-center">
-                                                        <div>
-                                                            <h6 class="mb-1">Two-Factor Authentication</h6>
-                                                            <p class="text-muted mb-0 small">Add an extra layer of
-                                                                security</p>
-                                                        </div>
-                                                        <div class="form-check form-switch">
-                                                            <input class="form-check-input" type="checkbox" checked>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="settings-card card">
-                                                <div class="card-body">
-                                                    <div class="d-flex justify-content-between align-items-center">
-                                                        <div>
-                                                            <h6 class="mb-1">Email Notifications</h6>
-                                                            <p class="text-muted mb-0 small">Receive activity updates
-                                                            </p>
-                                                        </div>
-                                                        <div class="form-check form-switch">
-                                                            <input class="form-check-input" type="checkbox" checked>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Recent Activity -->
-                                    <div>
-                                        <h5 class="mb-4">Recent Activity</h5>
-                                        <div class="activity-item mb-3">
-                                            <h6 class="mb-1">Updated profile picture</h6>
-                                            <p class="text-muted small mb-0">2 hours ago</p>
-                                        </div>
-                                        <div class="activity-item mb-3">
-                                            <h6 class="mb-1">Changed password</h6>
-                                            <p class="text-muted small mb-0">Yesterday</p>
-                                        </div>
-                                        <div class="activity-item">
-                                            <h6 class="mb-1">Updated billing information</h6>
-                                            <p class="text-muted small mb-0">3 days ago</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+  <div class="page">
+    <div class="page-inner">
+      <header class="page-head">
+        <div class="identity">
+          <div class="avatar">{{ avatarLetter }}</div>
+          <div>
+            <p class="eyebrow">Profil</p>
+            <h1 class="title">{{ userProfile.username || 'Mon profil' }}</h1>
+            <p class="lead">Connecté en tant que <strong>{{ roleLabel }}</strong></p>
+          </div>
         </div>
+      </header>
+
+      <div v-if="loading" class="state">Chargement du profil…</div>
+
+      <section v-else class="panel">
+        <h2 class="panel-title">Informations personnelles</h2>
+
+        <div v-if="feedback" class="feedback" :class="feedbackType">{{ feedback }}</div>
+
+        <form class="form" @submit.prevent="saveProfile">
+          <label class="field">
+            <span>Nom d'utilisateur</span>
+            <input v-model="form.username" type="text" required />
+          </label>
+
+          <label class="field">
+            <span>Email</span>
+            <input v-model="form.email" type="email" placeholder="vous@email.com" />
+          </label>
+
+          <label class="field">
+            <span>Téléphone</span>
+            <input v-model="form.phone" type="tel" placeholder="Ex. 034 00 000 00" />
+          </label>
+
+          <label class="field">
+            <span>Rôle</span>
+            <input type="text" :value="roleLabel" disabled />
+          </label>
+
+          <button class="submit-btn" type="submit" :disabled="saving">
+            {{ saving ? 'Enregistrement...' : 'Enregistrer' }}
+          </button>
+        </form>
+      </section>
     </div>
-</div>
+  </div>
 </template>
 
 <script setup>
-import  Navbar from '../home/layouts/Navbar.vue';
-import { ref, reactive, onMounted } from 'vue'
-import api from '@/services/api'
+import { ref, reactive, computed, onMounted } from 'vue'
+import { authService } from '@/services/ordersservices'
 
-const userProfile = ref({
-    username: '',
-    email: '',
-    role: '',
-    is_verified: false
-});
+const userProfile = ref({ username: '', email: '', phone: '', role: '' })
+const form = reactive({ username: '', email: '', phone: '' })
+const loading = ref(true)
+const saving = ref(false)
+const feedback = ref('')
+const feedbackType = ref('success')
 
-const  loading = ref(true);
+const roleLabels = {
+  client: 'Client',
+  livreur: 'Livreur',
+  admin: 'Administrateur',
+}
+
+const roleLabel = computed(() => roleLabels[userProfile.value.role] || userProfile.value.role)
+const avatarLetter = computed(() => (userProfile.value.username || '?').charAt(0).toUpperCase())
+
 onMounted(async () => {
     try {
-        const response = await api.get('/auth/profile/');
-        userProfile.value = response.data;
+        const response = await authService.getProfile()
+        userProfile.value = response.data
+        form.username = response.data.username
+        form.email = response.data.email || ''
+        form.phone = response.data.phone || ''
     } catch (error) {
-        console.error('Error fetching profile:', error);
+        console.error('Error fetching profile:', error)
+        feedbackType.value = 'error'
+        feedback.value = 'Impossible de charger le profil'
     } finally {
-        loading.value = false;
+        loading.value = false
     }
-});
-</script> 
+})
+
+const saveProfile = async () => {
+    saving.value = true
+    feedback.value = ''
+    try {
+        const response = await authService.updateProfile({ ...form })
+        userProfile.value = response.data
+        localStorage.setItem('user', JSON.stringify(response.data))
+        feedbackType.value = 'success'
+        feedback.value = 'Profil mis à jour avec succès'
+    } catch {
+        feedbackType.value = 'error'
+        feedback.value = 'Erreur lors de la mise à jour'
+    } finally {
+        saving.value = false
+    }
+}
+</script>
+
+<style scoped>
+.page {
+  --ink: #101828;
+  --ink-soft: #475467;
+  --paper: #f7f4ef;
+  --panel: #ffffff;
+  --accent: #f95c19;
+  --accent-deep: #d9480f;
+  --line: #e4e0d8;
+  --ok: #0f7b4c;
+  --err: #b42318;
+
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: 5.5rem clamp(1.15rem, 4vw, 3rem) 2.5rem;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'Outfit', system-ui, sans-serif;
+}
+
+.page-inner {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.page-head {
+  margin-bottom: 1.5rem;
+}
+
+.identity {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.avatar {
+  width: 72px;
+  height: 72px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  background: var(--accent);
+  color: #fff;
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
+.eyebrow {
+  margin: 0 0 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.title {
+  margin: 0;
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: clamp(1.6rem, 3vw, 2rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.lead {
+  margin: 0.25rem 0 0;
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  padding: clamp(1.15rem, 3vw, 1.75rem);
+}
+
+.panel-title {
+  margin: 0 0 1.15rem;
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 1.25rem;
+  font-weight: 650;
+}
+
+.feedback {
+  margin-bottom: 1rem;
+  padding: 0.75rem 0.9rem;
+  font-size: 0.9rem;
+  border-left: 3px solid;
+}
+
+.feedback.error {
+  background: #fef3f2;
+  border-color: var(--err);
+  color: var(--err);
+}
+
+.feedback.success {
+  background: #ecfdf3;
+  border-color: var(--ok);
+  color: var(--ok);
+}
+
+.form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.field span {
+  font-size: 0.82rem;
+  font-weight: 650;
+  color: var(--ink-soft);
+}
+
+.field input {
+  height: 48px;
+  padding: 0 0.9rem;
+  border: 1px solid var(--line);
+  background: #fff;
+  font-family: inherit;
+  font-size: 16px;
+  color: var(--ink);
+  outline: none;
+}
+
+.field input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(249, 92, 25, 0.15);
+}
+
+.field input:disabled {
+  background: #efeae2;
+  color: var(--ink-soft);
+}
+
+.submit-btn {
+  grid-column: 1 / -1;
+  height: 50px;
+  border: none;
+  background: var(--accent);
+  color: #fff;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 650;
+  cursor: pointer;
+  margin-top: 0.25rem;
+}
+
+.submit-btn:hover:not(:disabled) {
+  background: var(--accent-deep);
+}
+
+.submit-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.state {
+  padding: 2rem;
+  color: var(--ink-soft);
+}
+
+@media (max-width: 640px) {
+  .form {
+    grid-template-columns: 1fr;
+  }
+
+  .identity {
+    align-items: flex-start;
+  }
+
+  .avatar {
+    width: 56px;
+    height: 56px;
+    font-size: 1.4rem;
+  }
+}
+</style>
