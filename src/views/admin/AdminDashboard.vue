@@ -3,11 +3,44 @@
     <div class="page-inner">
       <header class="page-head">
         <p class="eyebrow">Admin</p>
-        <h1 class="title">Administration</h1>
-        <p class="lead">Gérez les commandes et assignez les livreurs</p>
+        <h1 class="title">Toutes les commandes</h1>
+        <p class="lead">Consultez chaque commande, le client et le livreur assigné</p>
       </header>
 
-      <div class="filters" role="group" aria-label="Filtres">
+      <div class="toolbar">
+        <input
+          v-model="searchQuery"
+          type="search"
+          class="search"
+          placeholder="Rechercher (#id, client, adresse…)"
+          aria-label="Rechercher une commande"
+        />
+
+        <div class="toolbar-filters">
+          <select v-model="typeFilter" class="select" aria-label="Type de commande" @change="loadOrders">
+            <option value="">Tous les types</option>
+            <option value="livraison">Livraison</option>
+            <option value="recuperation">Récupération</option>
+          </select>
+
+          <select v-model="clientFilter" class="select" aria-label="Filtrer par client" @change="loadOrders">
+            <option value="">Tous les clients</option>
+            <option v-for="c in clients" :key="c.id" :value="c.id">
+              {{ c.username }}
+            </option>
+          </select>
+
+          <select v-model="delivererFilter" class="select" aria-label="Filtrer par livreur" @change="loadOrders">
+            <option value="">Tous les livreurs</option>
+            <option value="none">Non assigné</option>
+            <option v-for="d in deliverers" :key="d.id" :value="d.id">
+              {{ d.username }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <div class="filters" role="group" aria-label="Filtres par statut">
         <button
           v-for="filter in filters"
           :key="filter.value"
@@ -20,36 +53,59 @@
         </button>
       </div>
 
+      <p v-if="!loading" class="count">
+        {{ filteredOrders.length }} commande{{ filteredOrders.length !== 1 ? 's' : '' }}
+      </p>
+
       <div v-if="error" class="feedback error">{{ error }}</div>
       <div v-if="loading" class="state">Chargement…</div>
-      <div v-else-if="orders.length === 0" class="state">
-        Aucune commande dans cette catégorie.
+      <div v-else-if="filteredOrders.length === 0" class="state">
+        Aucune commande ne correspond à vos critères.
       </div>
 
       <div v-else class="list">
-        <article v-for="order in orders" :key="order.id" class="item">
+        <article v-for="order in filteredOrders" :key="order.id" class="item">
           <div class="item-top">
             <span class="id">#{{ order.id }}</span>
             <span class="type">
               {{ order.order_type === 'livraison' ? 'Livraison' : 'Récupération' }}
             </span>
-            <span class="status">{{ order.status }}</span>
+            <span
+              class="status"
+              :style="{ '--status': getOrderStatusColor(order.status) }"
+            >
+              {{ getOrderStatusLabel(order.status) }}
+            </span>
           </div>
 
           <div class="item-grid">
             <div class="meta">
               <span>Client</span>
               <strong>{{ order.client?.username || '—' }}</strong>
-            </div>
-            <div class="meta">
-              <span>Adresse</span>
-              <strong>
-                {{ order.delivery_location?.address || order.pickup_location?.address || '—' }}
-              </strong>
+              <small v-if="order.client?.phone">{{ order.client.phone }}</small>
             </div>
             <div class="meta">
               <span>Livreur</span>
               <strong>{{ order.assignment?.deliverer?.username || 'Non assigné' }}</strong>
+              <small v-if="order.assignment?.status">
+                {{ getAssignmentStatusLabel(order.assignment.status) }}
+              </small>
+            </div>
+            <div class="meta">
+              <span>Créée le</span>
+              <strong>{{ formatDate(order.created_at) }}</strong>
+            </div>
+            <div v-if="order.pickup_location?.address" class="meta">
+              <span>Point de départ</span>
+              <strong>{{ order.pickup_location.address }}</strong>
+            </div>
+            <div v-if="order.delivery_location?.address" class="meta">
+              <span>Destination</span>
+              <strong>{{ order.delivery_location.address }}</strong>
+            </div>
+            <div v-if="order.description" class="meta meta-wide">
+              <span>Description</span>
+              <strong>{{ order.description }}</strong>
             </div>
           </div>
 
@@ -79,7 +135,7 @@
 </template>
 
 <script setup>
-import { onMounted, reactive, ref, watch } from 'vue'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { authService, orderService } from '@/services/ordersservices'
 import { useWebSocket } from '@/composables/useWebSocket'
 
@@ -87,26 +143,115 @@ const { lastNotification } = useWebSocket()
 
 const orders = ref([])
 const deliverers = ref([])
+const clients = ref([])
 const loading = ref(false)
 const error = ref('')
-const activeFilter = ref('pending')
+const activeFilter = ref('')
+const typeFilter = ref('')
+const clientFilter = ref('')
+const delivererFilter = ref('')
+const searchQuery = ref('')
 const assigningId = ref(null)
 const assignSelections = reactive({})
 
 const filters = [
+  { label: 'Toutes', value: '' },
   { label: 'En attente', value: 'pending' },
   { label: 'Assignées', value: 'assigned' },
   { label: 'En cours', value: 'in_transit' },
-  { label: 'Toutes', value: '' },
+  { label: 'Livrées', value: 'delivered' },
+  { label: 'Annulées', value: 'cancelled' },
 ]
+
+const orderStatusLabels = {
+  created: 'Créée',
+  pending: 'En attente',
+  assigned: 'Assignée',
+  picked_up: 'Récupérée',
+  in_transit: 'En cours',
+  delivered: 'Livrée',
+  cancelled: 'Annulée',
+}
+
+const orderStatusColors = {
+  created: '#667085',
+  pending: '#c47f0e',
+  assigned: '#0f6e8c',
+  picked_up: '#1d4ed8',
+  in_transit: '#1d4ed8',
+  delivered: '#0f7b4c',
+  cancelled: '#b42318',
+}
+
+const assignmentStatusLabels = {
+  assigned: 'Assignée',
+  accepted: 'Acceptée',
+  en_route: 'En route',
+  completed: 'Terminée',
+  cancelled: 'Annulée',
+}
+
+const getOrderStatusLabel = (status) => orderStatusLabels[status] || status
+const getOrderStatusColor = (status) => orderStatusColors[status] || '#667085'
+const getAssignmentStatusLabel = (status) => assignmentStatusLabels[status] || status
+
+const formatDate = (date) => {
+  if (!date) return '—'
+  return new Date(date).toLocaleDateString('fr-FR', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+}
+
+const filteredOrders = computed(() => {
+  const q = searchQuery.value.trim().toLowerCase()
+  if (!q) return orders.value
+
+  return orders.value.filter((order) => {
+    const haystack = [
+      String(order.id),
+      order.client?.username,
+      order.client?.phone,
+      order.assignment?.deliverer?.username,
+      order.pickup_location?.address,
+      order.delivery_location?.address,
+      order.description,
+      getOrderStatusLabel(order.status),
+    ]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase()
+
+    return haystack.includes(q)
+  })
+})
+
+const buildParams = () => {
+  const params = {}
+  if (activeFilter.value) params.status = activeFilter.value
+  if (typeFilter.value) params.order_type = typeFilter.value
+  if (clientFilter.value) params.client_id = clientFilter.value
+  if (delivererFilter.value && delivererFilter.value !== 'none') {
+    params.deliverer_id = delivererFilter.value
+  }
+  return params
+}
 
 const loadOrders = async (showLoading = true) => {
   if (showLoading) loading.value = true
   error.value = ''
   try {
-    const params = activeFilter.value ? { status: activeFilter.value } : {}
-    const response = await orderService.getAdminOrders(params)
-    orders.value = response.data
+    const response = await orderService.getAdminOrders(buildParams())
+    let data = response.data
+
+    if (delivererFilter.value === 'none') {
+      data = data.filter((order) => !order.assignment?.deliverer)
+    }
+
+    orders.value = data
   } catch (err) {
     error.value = err.response?.data?.detail || 'Erreur de chargement'
   } finally {
@@ -129,7 +274,7 @@ const assignDeliverer = async (orderId) => {
     assignSelections[orderId] = ''
     await loadOrders()
   } catch (err) {
-    error.value = err.response?.data?.detail || 'Erreur lors de l\'assignation'
+    error.value = err.response?.data?.detail || "Erreur lors de l'assignation"
   } finally {
     assigningId.value = null
   }
@@ -137,11 +282,13 @@ const assignDeliverer = async (orderId) => {
 
 onMounted(async () => {
   try {
-    const [deliverersRes] = await Promise.all([
+    const [deliverersRes, clientsRes] = await Promise.all([
       authService.getDeliverers(),
+      authService.getClients(),
       loadOrders(),
     ])
     deliverers.value = deliverersRes.data
+    clients.value = clientsRes.data
   } catch {
     error.value = 'Impossible de charger les données admin'
   }
@@ -173,11 +320,13 @@ watch(lastNotification, (notification) => {
 }
 
 .page-inner {
-  max-width: 1000px;
+  max-width: 1100px;
   margin: 0 auto;
 }
 
-.page-head { margin-bottom: 1.35rem; }
+.page-head {
+  margin-bottom: 1.35rem;
+}
 
 .eyebrow {
   margin: 0 0 0.35rem;
@@ -196,13 +345,61 @@ watch(lastNotification, (notification) => {
   letter-spacing: -0.02em;
 }
 
-.lead { margin: 0; color: var(--ink-soft); }
+.lead {
+  margin: 0;
+  color: var(--ink-soft);
+}
+
+.toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.search {
+  width: 100%;
+  height: 44px;
+  padding: 0 0.9rem;
+  border: 1px solid var(--line);
+  background: #fff;
+  font-family: inherit;
+  font-size: 16px;
+  outline: none;
+}
+
+.search:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(249, 92, 25, 0.15);
+}
+
+.toolbar-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.select {
+  flex: 1 1 160px;
+  height: 44px;
+  padding: 0 0.85rem;
+  border: 1px solid var(--line);
+  background: #fff;
+  font-family: inherit;
+  font-size: 16px;
+  outline: none;
+}
+
+.select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(249, 92, 25, 0.15);
+}
 
 .filters {
   display: flex;
   flex-wrap: wrap;
   gap: 0.45rem;
-  margin-bottom: 1.35rem;
+  margin-bottom: 0.75rem;
 }
 
 .filter-btn {
@@ -221,6 +418,13 @@ watch(lastNotification, (notification) => {
   background: var(--accent);
   border-color: var(--accent);
   color: #fff;
+}
+
+.count {
+  margin: 0 0 1rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--ink-soft);
 }
 
 .feedback.error {
@@ -256,7 +460,9 @@ watch(lastNotification, (notification) => {
   margin-bottom: 0.85rem;
 }
 
-.id { font-weight: 700; }
+.id {
+  font-weight: 700;
+}
 
 .type {
   font-size: 0.82rem;
@@ -268,7 +474,7 @@ watch(lastNotification, (notification) => {
   margin-left: auto;
   font-size: 0.8rem;
   font-weight: 700;
-  color: var(--accent);
+  color: var(--status, var(--accent));
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
@@ -289,9 +495,21 @@ watch(lastNotification, (notification) => {
 }
 
 .meta strong {
+  display: block;
   font-size: 0.95rem;
   line-height: 1.4;
   word-break: break-word;
+}
+
+.meta small {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+}
+
+.meta-wide {
+  grid-column: 1 / -1;
 }
 
 .assign {

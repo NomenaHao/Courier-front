@@ -31,6 +31,10 @@ export const authService = {
     return api.get("auth/livreurs/");
   },
 
+  getClients() {
+    return api.get("auth/clients/");
+  },
+
   getProfile() {
     return api.get("auth/profile/");
   },
