@@ -31,7 +31,7 @@ const buildWsUrl = () => {
   if (!token) return null;
 
   const wsBase = API_BASE_URL.replace(/^http/, "ws").replace(/\/api\/?$/, "");
-  return `${wsBase}/ws/notifications/?token=${encodeURIComponent(token)}`;
+  return `${wsBase}/ws/notifications?token=${encodeURIComponent(token)}`;
 };
 
 const connect = () => {
@@ -49,6 +49,17 @@ const connect = () => {
   ws.onmessage = (event) => {
     const data = JSON.parse(event.data);
     pushNotification(data);
+  };
+
+  ws.onopen = () => {
+    if (reconnectTimer) {
+      clearTimeout(reconnectTimer);
+      reconnectTimer = null;
+    }
+  };
+
+  ws.onerror = () => {
+    ws?.close();
   };
 
   ws.onclose = () => {

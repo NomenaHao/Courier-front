@@ -1,25 +1,52 @@
 <template>
   <div class="auth-page">
-    <aside class="auth-brand" aria-hidden="false">
-      <div class="brand-glow"></div>
-      <div class="brand-route"></div>
-      <div class="brand-content">
-        <h1 class="brand-title">De nos mains<br />à votre porte.</h1>
-        <p class="brand-sub">Livraisons et récupérations simples, rapides, fiables.</p>
+    <aside class="auth-hero" aria-hidden="false">
+      <div class="hero-media" role="presentation"></div>
+      <div class="hero-shade"></div>
+      <div class="hero-copy">
+        <h1 class="hero-title">
+          De nos mains<br />
+          <span class="hero-highlight">à votre porte.</span>
+        </h1>
+        <p class="hero-sub">Livraisons et récupérations simples, rapides, fiables.</p>
       </div>
-      <ul class="brand-points">
-        <li>Suivi en temps réel</li>
-        <li>Livreurs à proximité</li>
-        <li>Commande en quelques clics</li>
-      </ul>
     </aside>
 
-    <div class="auth-panel">
-      <div class="auth-panel-inner">
+    <div class="auth-shell">
+      <div class="auth-card">
+        <header class="auth-brand-row">
+          <img
+            v-if="logoOk"
+            src="@/assets/img/gallery/logo.png"
+            alt=""
+            class="brand-logo"
+            @error="logoOk = false"
+          />
+          <span v-else class="brand-wordmark">Quick<span class="dot">.</span></span>
+        </header>
+
         <header class="auth-header">
           <p class="auth-kicker">{{ isLogin ? 'Bon retour' : 'Créer un compte' }}</p>
           <h2 class="auth-heading">{{ isLogin ? 'Connexion' : 'Inscription' }}</h2>
         </header>
+
+        <div class="feature-carousel" aria-live="polite">
+          <div class="carousel-visual">
+            <img :src="slides[activeSlide].icon" alt="" class="carousel-icon" />
+          </div>
+          <!-- <p class="carousel-caption">{{ slides[activeSlide].text }}</p> -->
+          <div class="carousel-dots" role="tablist" aria-label="Points forts">
+            <button
+              v-for="(slide, index) in slides"
+              :key="slide.text"
+              type="button"
+              class="dot-btn"
+              :class="{ active: activeSlide === index }"
+              :aria-selected="activeSlide === index"
+              @click="activeSlide = index"
+            />
+          </div>
+        </div>
 
         <div class="auth-tabs" role="tablist">
           <button
@@ -157,16 +184,41 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '@/services/api'
+import { useWebSocket } from '@/composables/useWebSocket'
+import iconTrack from '@/assets/img/icons/services-1.svg'
+import iconNearby from '@/assets/img/icons/services-2.svg'
+import iconOrder from '@/assets/img/icons/services-3.svg'
 
 const router = useRouter()
+const { connect, disconnect } = useWebSocket()
 
 const isLogin = ref(true)
 const loading = ref(false)
 const feedback = ref('')
 const feedbackType = ref('error')
+const logoOk = ref(true)
+const activeSlide = ref(0)
+
+const slides = [
+  { text: 'Suivi en temps réel', icon: iconTrack },
+  { text: 'Livreurs à proximité', icon: iconNearby },
+  { text: 'Commande en quelques clics', icon: iconOrder },
+]
+
+let carouselTimer = null
+
+onMounted(() => {
+  carouselTimer = setInterval(() => {
+    activeSlide.value = (activeSlide.value + 1) % slides.length
+  }, 4500)
+})
+
+onUnmounted(() => {
+  if (carouselTimer) clearInterval(carouselTimer)
+})
 
 const loginForm = ref({
   username: '',
@@ -190,6 +242,8 @@ const handleLogin = async () => {
     localStorage.setItem('refresh', response.data.refresh)
     localStorage.setItem('user', JSON.stringify(response.data.user))
 
+    disconnect()
+    connect()
     router.push('/home')
   } catch (error) {
     feedbackType.value = 'error'
@@ -245,26 +299,22 @@ const handleSignup = async () => {
 .auth-page {
   --ink: #101828;
   --ink-soft: #475467;
-  --paper: #f7f4ef;
   --panel: #ffffff;
-  --accent: #f95c19;
-  --accent-deep: #d9480f;
-  --line: #e4e0d8;
+  --accent: #ef3b2d;
+  --accent-deep: #d62828;
+  --line: #e4e7ec;
   --ok: #0f7b4c;
   --err: #b42318;
 
   display: grid;
-  grid-template-columns: minmax(0, 1.05fr) minmax(340px, 0.95fr);
+  grid-template-columns: minmax(0, 1.15fr) minmax(360px, 0.85fr);
   min-height: 100vh;
   min-height: 100dvh;
   width: 100%;
-  max-width: 100%;
-  flex: 1;
   font-family: 'Outfit', sans-serif;
   color: var(--ink);
-  background: var(--paper);
+  background: #1a1a1a;
   overflow-x: hidden;
-  box-sizing: border-box;
 }
 
 .auth-page *,
@@ -273,146 +323,174 @@ const handleSignup = async () => {
   box-sizing: border-box;
 }
 
-.auth-brand {
+.auth-hero {
   position: relative;
+  min-height: 100vh;
+  min-height: 100dvh;
   overflow: hidden;
-  padding: clamp(1.5rem, 5vw, 4rem);
-  padding-top: max(clamp(1.5rem, 5vw, 4rem), env(safe-area-inset-top));
-  padding-left: max(clamp(1.5rem, 5vw, 4rem), env(safe-area-inset-left));
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: 1.5rem;
-  min-width: 0;
-  color: #f8f4ee;
-  background:
-    radial-gradient(ellipse 80% 60% at 20% 20%, rgba(249, 92, 25, 0.35), transparent 55%),
-    radial-gradient(ellipse 70% 50% at 80% 80%, rgba(56, 98, 156, 0.25), transparent 50%),
-    linear-gradient(155deg, #0b1324 0%, #152238 48%, #1c2b45 100%) !important;
-  animation: brand-in 0.7s ease both;
 }
 
-.brand-glow {
-  position: absolute;
-  inset: auto -20% -30% auto;
-  width: 55%;
-  height: 55%;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(249, 92, 25, 0.28), transparent 70%);
-  filter: blur(8px);
-  pointer-events: none;
-}
-
-.brand-route {
+.hero-media {
   position: absolute;
   inset: 0;
-  background:
-    linear-gradient(115deg, transparent 40%, rgba(255, 255, 255, 0.04) 40.5%, transparent 41%),
-    repeating-linear-gradient(
-      -18deg,
-      transparent 0,
-      transparent 28px,
-      rgba(255, 255, 255, 0.03) 28px,
-      rgba(255, 255, 255, 0.03) 29px
-    );
-  pointer-events: none;
-  mask-image: linear-gradient(to bottom, black 30%, transparent 95%);
+  background: url('/assets/img/Deliverer.jpg') center / cover no-repeat;
+  transform: scale(1.03);
 }
 
-.brand-content {
-  position: relative;
+.hero-shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0.55) 0%,
+    rgba(0, 0, 0, 0.25) 55%,
+    rgba(0, 0, 0, 0.45) 100%
+  );
+}
+
+.hero-copy {
+  position: absolute;
+  left: clamp(1.5rem, 4vw, 3rem);
+  bottom: clamp(2rem, 6vw, 4rem);
   z-index: 1;
   max-width: 28rem;
-  margin-top: 2rem;
-}
-
-.brand-mark {
-  font-family: 'Fraunces', Georgia, serif;
-  font-size: clamp(2.6rem, 5vw, 3.8rem);
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  line-height: 1;
-  margin-bottom: 1.25rem;
   color: #fff;
 }
 
-.brand-title {
+.hero-title {
+  margin: 0 0 0.75rem;
   font-family: 'Fraunces', Georgia, serif;
-  font-size: clamp(1.6rem, 3.2vw, 2.35rem);
-  font-weight: 600;
-  line-height: 1.15;
+  font-size: clamp(1.75rem, 3.5vw, 2.75rem);
+  font-weight: 700;
+  line-height: 1.12;
   letter-spacing: -0.02em;
-  margin-bottom: 0.9rem;
-  color: rgba(255, 255, 255, 0.95);
 }
 
-.brand-sub {
-  font-size: 1.05rem;
-  line-height: 1.55;
-  color: rgba(248, 244, 238, 0.72);
+.hero-highlight {
+  color: var(--accent);
+}
+
+.hero-sub {
+  margin: 0;
+  font-size: clamp(0.95rem, 1.5vw, 1.05rem);
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.82);
   max-width: 22rem;
 }
 
-.brand-points {
-  position: relative;
-  z-index: 1;
-  list-style: none;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.55rem;
-  padding: 0;
-  margin: 2.5rem 0 0;
-}
-
-.brand-points li {
-  font-size: 0.85rem;
-  font-weight: 500;
-  padding: 0.45rem 0.8rem;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  background: rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(6px);
-}
-
-.auth-panel {
+.auth-shell {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 0;
-  width: 100%;
-  padding: clamp(1.25rem, 4vw, 3rem);
-  padding-bottom: max(clamp(1.25rem, 4vw, 3rem), env(safe-area-inset-bottom));
-  padding-right: max(clamp(1.25rem, 4vw, 3rem), env(safe-area-inset-right));
+  padding: clamp(1rem, 3vw, 2rem);
   background:
-    radial-gradient(circle at 100% 0%, rgba(249, 92, 25, 0.07), transparent 40%),
-    var(--paper) !important;
-  animation: panel-in 0.65s ease 0.08s both;
+    linear-gradient(180deg, rgba(30, 30, 30, 0.92), rgba(20, 20, 20, 0.96)),
+    url('/assets/img/Deliverer.jpg') center / cover no-repeat;
 }
 
-.auth-panel-inner {
+.auth-card {
   width: 100%;
-  max-width: 400px;
-  margin: 0 auto;
+  max-width: 420px;
+  padding: clamp(1.35rem, 3vw, 2rem) clamp(1.25rem, 3vw, 1.75rem);
+  background: var(--panel);
+  border-radius: 14px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+  animation: panel-in 0.55s ease both;
+}
+
+.auth-brand-row {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 0.75rem;
+}
+
+.brand-logo {
+  height: 42px;
+  width: auto;
+  object-fit: contain;
+}
+
+.brand-wordmark {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 1.65rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+}
+
+.brand-wordmark .dot {
+  color: var(--accent);
 }
 
 .auth-header {
-  margin-bottom: 1.5rem;
+  text-align: center;
+  margin-bottom: 0.85rem;
 }
 
 .auth-kicker {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--accent);
-  margin-bottom: 0.4rem;
+  margin: 0 0 0.25rem;
 }
 
 .auth-heading {
+  margin: 0;
   font-family: 'Fraunces', Georgia, serif;
-  font-size: clamp(1.7rem, 3vw, 2.1rem);
+  font-size: clamp(1.45rem, 2.5vw, 1.85rem);
   font-weight: 700;
   letter-spacing: -0.02em;
-  color: var(--ink);
+}
+
+.feature-carousel {
+  text-align: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+}
+
+.carousel-visual {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 72px;
+  margin-bottom: 0.35rem;
+}
+
+.carousel-icon {
+  height: 56px;
+  width: auto;
+}
+
+.carousel-caption {
+  margin: 0 0 0.55rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+  line-height: 1.35;
+}
+
+.carousel-dots {
+  display: flex;
+  justify-content: center;
+  gap: 0.35rem;
+}
+
+.dot-btn {
+  width: 7px;
+  height: 7px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: #d0d5dd;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.dot-btn.active {
+  background: var(--accent);
+  transform: scale(1.15);
 }
 
 .auth-tabs {
@@ -420,9 +498,10 @@ const handleSignup = async () => {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0.25rem;
-  padding: 0.3rem;
-  margin-bottom: 1.5rem;
-  background: #efeae2;
+  padding: 0.28rem;
+  margin-bottom: 1rem;
+  background: #f2f4f7;
+  border-radius: 10px;
 }
 
 .auth-tab {
@@ -430,12 +509,13 @@ const handleSignup = async () => {
   z-index: 1;
   border: none;
   background: transparent;
-  padding: 0.7rem 0.5rem;
+  padding: 0.62rem 0.5rem;
   font-family: inherit;
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   font-weight: 600;
   color: var(--ink-soft);
   cursor: pointer;
+  border-radius: 8px;
   transition: color 0.25s ease;
 }
 
@@ -445,12 +525,13 @@ const handleSignup = async () => {
 
 .auth-tab-indicator {
   position: absolute;
-  top: 0.3rem;
-  bottom: 0.3rem;
-  left: 0.3rem;
-  width: calc(50% - 0.3rem);
+  top: 0.28rem;
+  bottom: 0.28rem;
+  left: 0.28rem;
+  width: calc(50% - 0.28rem);
   background: var(--panel);
-  box-shadow: 0 1px 3px rgba(16, 24, 40, 0.08);
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(16, 24, 40, 0.1);
   transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
   pointer-events: none;
 }
@@ -460,12 +541,12 @@ const handleSignup = async () => {
 }
 
 .auth-feedback {
-  margin-bottom: 1rem;
-  padding: 0.75rem 0.9rem;
-  font-size: 0.9rem;
+  margin-bottom: 0.85rem;
+  padding: 0.7rem 0.85rem;
+  font-size: 0.88rem;
   line-height: 1.4;
+  border-radius: 8px;
   border-left: 3px solid;
-  animation: feedback-in 0.3s ease both;
 }
 
 .auth-feedback.error {
@@ -483,17 +564,17 @@ const handleSignup = async () => {
 .auth-form {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.85rem;
 }
 
 .field {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
+  gap: 0.35rem;
 }
 
 .field span {
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   font-weight: 600;
   color: var(--ink-soft);
 }
@@ -501,29 +582,22 @@ const handleSignup = async () => {
 .field input,
 .field select {
   width: 100%;
-  max-width: 100%;
   height: 48px;
   padding: 0 0.95rem;
   border: 1px solid var(--line);
-  border-radius: 0;
-  background: var(--panel);
+  border-radius: 10px;
+  background: #fff;
   font-family: inherit;
-  font-size: 16px; /* évite le zoom iOS */
+  font-size: 16px;
   color: var(--ink);
   outline: none;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
-  -webkit-appearance: none;
-  appearance: none;
-}
-
-.field input::placeholder {
-  color: #98a2b3;
 }
 
 .field input:focus,
 .field select:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(249, 92, 25, 0.15);
+  box-shadow: 0 0 0 3px rgba(239, 59, 45, 0.14);
 }
 
 .field select {
@@ -538,7 +612,7 @@ const handleSignup = async () => {
 .field-meta {
   display: flex;
   justify-content: flex-end;
-  margin-top: -0.35rem;
+  margin-top: -0.25rem;
 }
 
 .pass-link,
@@ -550,7 +624,6 @@ const handleSignup = async () => {
   font-size: 0.85rem;
   font-weight: 600;
   color: var(--accent);
-  text-decoration: none;
   cursor: pointer;
 }
 
@@ -561,32 +634,26 @@ const handleSignup = async () => {
 }
 
 .submit-btn {
-  margin-top: 0.35rem;
+  margin-top: 0.25rem;
   width: 100%;
   height: 50px;
-  min-height: 48px;
   border: none;
+  border-radius: 10px;
   background: var(--accent);
   color: #fff;
   font-family: inherit;
   font-size: 1rem;
   font-weight: 650;
-  letter-spacing: 0.01em;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   transition: background 0.2s ease, transform 0.15s ease;
-  touch-action: manipulation;
 }
 
 .submit-btn:hover:not(:disabled) {
   background: var(--accent-deep);
   transform: translateY(-1px);
-}
-
-.submit-btn:active:not(:disabled) {
-  transform: translateY(0);
 }
 
 .submit-btn:disabled {
@@ -604,9 +671,9 @@ const handleSignup = async () => {
 }
 
 .auth-switch {
-  margin-top: 1.5rem;
+  margin-top: 1.15rem;
   text-align: center;
-  font-size: 0.92rem;
+  font-size: 0.9rem;
   color: var(--ink-soft);
 }
 
@@ -621,32 +688,10 @@ const handleSignup = async () => {
   transform: translateY(6px);
 }
 
-@keyframes brand-in {
-  from {
-    opacity: 0;
-    transform: translateX(-12px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
 @keyframes panel-in {
   from {
     opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-@keyframes feedback-in {
-  from {
-    opacity: 0;
-    transform: translateY(-4px);
+    transform: translateY(12px);
   }
   to {
     opacity: 1;
@@ -660,186 +705,54 @@ const handleSignup = async () => {
   }
 }
 
-/* Tablette paysage / petits laptops */
-@media (max-width: 1100px) {
-  .auth-page {
-    grid-template-columns: minmax(0, 0.9fr) minmax(320px, 1fr);
-  }
-
-  .brand-points li {
-    font-size: 0.8rem;
-  }
-}
-
-/* Tablette portrait & mobile : stack vertical */
-@media (max-width: 900px) {
+@media (max-width: 960px) {
   .auth-page {
     grid-template-columns: 1fr;
-    grid-template-rows: auto 1fr;
+    grid-template-rows: minmax(220px, 34vh) 1fr;
   }
 
-  .auth-brand {
+  .auth-hero {
     min-height: unset;
-    padding: 1.35rem 1.25rem 1.25rem;
-    padding-top: max(1.35rem, env(safe-area-inset-top));
-    gap: 0.75rem;
-    justify-content: flex-start;
   }
 
-  .brand-content {
-    margin-top: 0;
-    max-width: none;
+  .hero-copy {
+    left: 1.15rem;
+    right: 1.15rem;
+    bottom: 1.15rem;
   }
 
-  .brand-mark {
-    font-size: clamp(1.9rem, 8vw, 2.4rem);
-    margin-bottom: 0.55rem;
+  .hero-title {
+    font-size: clamp(1.35rem, 5vw, 1.75rem);
   }
 
-  .brand-title {
-    font-size: clamp(1.15rem, 4.5vw, 1.45rem);
-    margin-bottom: 0.4rem;
+  .hero-sub {
+    font-size: 0.88rem;
   }
 
-  .brand-title br {
-    display: none;
-  }
-
-  .brand-sub {
-    font-size: 0.92rem;
-    max-width: none;
-    line-height: 1.45;
-  }
-
-  .brand-points {
-    display: none;
-  }
-
-  .auth-panel {
-    padding: 1.5rem 1.15rem 2rem;
-    padding-bottom: max(2rem, env(safe-area-inset-bottom));
+  .auth-shell {
     align-items: flex-start;
+    padding-top: 0.75rem;
   }
 
-  .auth-header {
-    margin-bottom: 1.15rem;
-  }
-
-  .auth-tabs {
-    margin-bottom: 1.15rem;
+  .auth-card {
+    margin-top: -1.5rem;
+    position: relative;
+    z-index: 2;
   }
 }
 
-/* Petits téléphones */
 @media (max-width: 480px) {
-  .auth-brand {
-    padding: 1.1rem 1rem 1rem;
+  .auth-card {
+    border-radius: 12px;
+    padding: 1.15rem 1rem 1.35rem;
   }
 
-  .brand-mark {
-    font-size: 1.75rem;
-    margin-bottom: 0.4rem;
+  .carousel-visual {
+    height: 60px;
   }
 
-  .brand-title {
-    font-size: 1.1rem;
-  }
-
-  .brand-sub {
-    font-size: 0.85rem;
-  }
-
-  .auth-panel {
-    padding: 1.25rem 0.95rem 1.75rem;
-  }
-
-  .auth-heading {
-    font-size: 1.45rem;
-  }
-
-  .auth-kicker {
-    font-size: 0.72rem;
-  }
-
-  .auth-tab {
-    padding: 0.65rem 0.35rem;
-    font-size: 0.88rem;
-  }
-
-  .field input,
-  .field select {
-    height: 46px;
-  }
-
-  .submit-btn {
+  .carousel-icon {
     height: 48px;
-  }
-
-  .auth-switch {
-    font-size: 0.88rem;
-    margin-top: 1.25rem;
-  }
-}
-
-/* Très petits écrans / landscape court */
-@media (max-height: 700px) and (max-width: 900px) {
-  .auth-brand {
-    padding-top: 0.9rem;
-    padding-bottom: 0.85rem;
-  }
-
-  .brand-sub {
-    display: none;
-  }
-
-  .auth-panel {
-    padding-top: 1rem;
-  }
-
-  .auth-form {
-    gap: 0.75rem;
-  }
-}
-
-/* Landscape mobile : 2 colonnes compactes si assez large */
-@media (max-height: 500px) and (orientation: landscape) and (min-width: 640px) {
-  .auth-page {
-    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
-    grid-template-rows: 1fr;
-    min-height: 100vh;
-    min-height: 100dvh;
-  }
-
-  .auth-brand {
-    padding: 1rem 1.25rem;
-    justify-content: center;
-  }
-
-  .brand-title,
-  .brand-sub,
-  .brand-points {
-    display: none;
-  }
-
-  .brand-mark {
-    margin: 0;
-    font-size: 2rem;
-  }
-
-  .auth-panel {
-    align-items: center;
-    padding: 1rem 1.25rem;
-    overflow-y: auto;
-  }
-
-  .auth-form {
-    gap: 0.65rem;
-  }
-
-  .field input,
-  .field select,
-  .submit-btn {
-    height: 42px;
   }
 }
 </style>

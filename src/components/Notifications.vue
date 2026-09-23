@@ -7,12 +7,11 @@
         class="toast show mb-2 border-0 shadow"
         role="alert"
       >
-        <div class="toast-header bg-white border-bottom-0">
+        <div class="toast-header bg-white border-0">
           <span class="me-2">🔔</span>
           <strong class="me-auto text-dark">{{ n.title }}</strong>
           <button type="button" class="btn-close" @click="dismiss(n.id)"></button>
         </div>
-        <div class="toast-body">{{ n.body }}</div>
       </div>
     </TransitionGroup>
   </div>
