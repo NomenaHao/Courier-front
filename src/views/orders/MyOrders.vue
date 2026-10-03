@@ -4,7 +4,7 @@
       <header class="page-head">
         <p class="eyebrow">Suivi</p>
         <h1 class="title">Mes commandes</h1>
-        <p class="lead">Suivez l'état de vos livraisons et récupérations</p>
+        <p class="lead">{{ lead }}</p>
       </header>
 
       <div v-if="error" class="feedback error">
@@ -15,39 +15,35 @@
       <div v-if="loading" class="state">Chargement…</div>
 
       <div v-else-if="orders.length === 0" class="state empty">
-        Aucune commande pour le moment.
+        <p>Aucune commande pour le moment.</p>
         <router-link to="/home#deliver_form" class="inline-link">Passer commande</router-link>
       </div>
 
       <div v-else class="list">
         <article v-for="order in orders" :key="order.id" class="item">
-          <div class="item-top">
+          <div class="rail">
             <span class="id">#{{ order.id }}</span>
             <span class="type">{{ order.order_type === 'livraison' ? 'Livraison' : 'Récupération' }}</span>
-            <span class="status" :style="{ '--status': getOrderStatusColor(order.status) }">
-              {{ getOrderStatusLabel(order.status) }}
-            </span>
           </div>
 
-          <div class="item-body">
-            <div v-if="order.delivery_location?.address" class="meta">
-              <span>Adresse de livraison</span>
-              <strong>{{ order.delivery_location.address }}</strong>
+          <div class="main">
+            <strong class="place">{{ placeOf(order) }}</strong>
+            <p v-if="order.description" class="detail">{{ order.description }}</p>
+            <div v-if="order.assignment?.deliverer" class="who">
+              <img
+                class="who-avatar"
+                :src="`https://api.dicebear.com/10.x/lorelei/svg?seed=${encodeURIComponent(order.assignment.deliverer.username)}`"
+                alt=""
+              />
+              <span>{{ order.assignment.deliverer.username }}</span>
             </div>
-            <div v-if="order.pickup_location?.address" class="meta">
-              <span>Adresse de récupération</span>
-              <strong>{{ order.pickup_location.address }}</strong>
-            </div>
-            <div v-if="order.assignment?.deliverer" class="meta">
-              <span>Livreur</span>
-              <strong>{{ order.assignment.deliverer.username }}</strong>
-            </div>
-            <div v-if="order.description" class="meta">
-              <span>Détails</span>
-              <p>{{ order.description }}</p>
-            </div>
+            <p v-else class="who muted">Livreur non assigné</p>
             <time>{{ formatDate(order.created_at) }}</time>
           </div>
+
+          <span class="status" :style="{ '--status': getOrderStatusColor(order.status) }">
+            {{ getOrderStatusLabel(order.status) }}
+          </span>
         </article>
       </div>
     </div>
@@ -55,7 +51,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue'
+import { computed, ref, onMounted, watch } from 'vue'
 import { orderService } from '@/services/ordersservices'
 import { useWebSocket } from '@/composables/useWebSocket'
 
@@ -87,6 +83,19 @@ const orderStatusLabels = {
 
 const getOrderStatusColor = (status) => orderStatusColors[status] || '#667085'
 const getOrderStatusLabel = (status) => orderStatusLabels[status] || status
+
+const lead = computed(() => {
+  const n = orders.value.length
+  if (!n) return 'Livraisons et récupérations'
+  return n === 1 ? '1 commande' : `${n} commandes`
+})
+
+const placeOf = (order) => {
+  if (order.order_type === 'recuperation') {
+    return order.pickup_location?.address || 'Adresse de récupération non renseignée'
+  }
+  return order.delivery_location?.address || order.pickup_location?.address || 'Adresse non renseignée'
+}
 
 const formatDate = (date) => {
   if (!date) return 'N/A'
@@ -202,16 +211,18 @@ watch(lastNotification, (notification) => {
   color: var(--ink-soft);
 }
 
-.state.empty {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  align-items: center;
+.state.empty p {
+  margin: 0 0 0.65rem;
 }
 
 .inline-link {
   color: var(--accent);
   font-weight: 650;
+  text-decoration: none;
+}
+
+.inline-link:hover {
+  text-decoration: underline;
 }
 
 .list {
@@ -221,67 +232,107 @@ watch(lastNotification, (notification) => {
 }
 
 .item {
-  padding: 1.25rem 0;
+  display: grid;
+  grid-template-columns: 7.25rem minmax(0, 1fr) auto;
+  gap: 0.85rem 1.15rem;
+  align-items: start;
+  padding: 1.15rem 0.35rem;
   border-bottom: 1px solid var(--line);
+  transition: background 0.18s ease;
 }
 
-.item-top {
+.item:hover {
+  background: #fff;
+}
+
+.rail {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem 0.75rem;
-  align-items: center;
-  margin-bottom: 0.85rem;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding-top: 0.15rem;
 }
 
 .id {
   font-weight: 700;
-  color: var(--ink);
+  letter-spacing: -0.02em;
 }
 
 .type {
-  font-size: 0.82rem;
-  font-weight: 600;
+  font-size: 0.75rem;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.place {
+  font-size: 1.02rem;
+  line-height: 1.35;
+  font-weight: 650;
+}
+
+.detail {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+.who {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0.15rem 0 0;
+  font-size: 0.88rem;
+}
+
+.who.muted {
+  color: var(--ink-soft);
+}
+
+.who-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+time {
+  font-size: 0.8rem;
   color: var(--ink-soft);
 }
 
 .status {
-  margin-left: auto;
-  font-size: 0.8rem;
+  justify-self: end;
+  font-size: 0.78rem;
   font-weight: 700;
   color: var(--status);
-  padding: 0.25rem 0.55rem;
+  padding: 0.28rem 0.55rem;
   background: color-mix(in srgb, var(--status) 12%, white);
 }
 
-.item-body {
-  display: grid;
-  gap: 0.7rem;
-}
+@media (max-width: 640px) {
+  .item {
+    grid-template-columns: 1fr auto;
+  }
 
-.meta span {
-  display: block;
-  font-size: 0.78rem;
-  font-weight: 650;
-  color: var(--ink-soft);
-  margin-bottom: 0.15rem;
-}
+  .rail {
+    grid-column: 1 / -1;
+    flex-direction: row;
+    align-items: baseline;
+    gap: 0.65rem;
+  }
 
-.meta strong,
-.meta p {
-  margin: 0;
-  font-size: 0.95rem;
-  line-height: 1.45;
-  word-break: break-word;
-}
-
-time {
-  font-size: 0.82rem;
-  color: var(--ink-soft);
-}
-
-@media (max-width: 560px) {
   .status {
-    margin-left: 0;
+    grid-column: 2;
+    grid-row: 2;
   }
 }
 </style>

@@ -7,7 +7,6 @@
           <div>
             <p class="eyebrow">Profil</p>
             <h1 class="title">{{ userProfile.username || 'Mon profil' }}</h1>
-            <p class="lead">Connecté en tant que <strong>{{ roleLabel }}</strong></p>
           </div>
         </div>
       </header>

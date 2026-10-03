@@ -39,7 +39,6 @@
             <img class="user-avatar" :src="avatarUrl" alt="" />
             <span class="user-meta">
               <strong>{{ displayName }}</strong>
-              <small>{{ roleLabel }}</small>
             </span>
           </router-link>
 
@@ -154,7 +153,7 @@ const visibleLinks = computed(() => {
     links.push({ label: 'Administration', to: { path: '/admin' } })
   }
 
-  if (isClient.value || isAdmin.value) {
+  if (isAdmin.value) {
     links.push({ label: 'Livreurs', to: { path: '/deliverer' } })
   }
 
