@@ -36,8 +36,13 @@
           </label>
 
           <label class="field">
-            <span>Rôle</span>
-            <input type="text" :value="roleLabel" disabled />
+            <span>Nouveau mot de passe (optionnel)</span>
+            <PasswordField
+              v-model="form.password"
+              autocomplete="new-password"
+              minlength="6"
+              placeholder="Min. 6 caractères"
+            />
           </label>
 
           <button class="submit-btn" type="submit" :disabled="saving">
@@ -52,9 +57,10 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
 import { authService } from '@/services/ordersservices'
+import PasswordField from '@/components/PasswordField.vue'
 
 const userProfile = ref({ username: '', email: '', phone: '', role: '' })
-const form = reactive({ username: '', email: '', phone: '' })
+const form = reactive({ username: '', email: '', phone: '', password: '' })
 const loading = ref(true)
 const saving = ref(false)
 const feedback = ref('')
@@ -91,7 +97,14 @@ const saveProfile = async () => {
     saving.value = true
     feedback.value = ''
     try {
-        const response = await authService.updateProfile({ ...form })
+        const payload = {
+            username: form.username,
+            email: form.email,
+            phone: form.phone,
+        }
+        if (form.password.trim()) payload.password = form.password
+        const response = await authService.updateProfile(payload)
+        form.password = ''
         userProfile.value = response.data
         localStorage.setItem('user', JSON.stringify(response.data))
         feedbackType.value = 'success'
