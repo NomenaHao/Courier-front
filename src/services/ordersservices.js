@@ -35,6 +35,18 @@ export const authService = {
     return api.get("auth/clients/");
   },
 
+  getUsers() {
+    return api.get("auth/users/");
+  },
+
+  updateUser(id, data) {
+    return api.patch(`auth/users/${id}/`, data);
+  },
+
+  deleteUser(id) {
+    return api.delete(`auth/users/${id}/`);
+  },
+
   getProfile() {
     return api.get("auth/profile/");
   },

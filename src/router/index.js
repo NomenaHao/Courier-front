@@ -52,9 +52,30 @@ const routes = [
   },
   {
     path: '/admin',
-    name: 'Admin',
-    component: () => import('../views/admin/AdminDashboard.vue'),
+    component: () => import('../views/admin/AdminLayout.vue'),
     meta: { requiresAuth: true, roles: ['admin'] },
+    children: [
+      {
+        path: '',
+        name: 'Admin',
+        component: () => import('../views/admin/AdminHome.vue'),
+      },
+      {
+        path: 'orders',
+        name: 'AdminOrders',
+        component: () => import('../views/admin/AdminOrders.vue'),
+      },
+      {
+        path: 'users',
+        name: 'AdminUsers',
+        component: () => import('../views/admin/AdminUsers.vue'),
+      },
+      {
+        path: 'deliverers',
+        name: 'AdminDeliverers',
+        component: () => import('../views/admin/AdminDeliverers.vue'),
+      },
+    ],
   },
 ]
 
@@ -74,7 +95,13 @@ router.beforeEach((to, from, next) => {
   const user = getStoredUser()
 
   if (to.meta.guestOnly && token) {
+    if (user?.role === 'livreur') return next('/deliveries')
+    if (user?.role === 'admin') return next('/admin')
     return next('/home')
+  }
+
+  if (user?.role === 'livreur' && to.path === '/home') {
+    return next('/deliveries')
   }
 
   if (to.meta.requiresAuth && !token) {

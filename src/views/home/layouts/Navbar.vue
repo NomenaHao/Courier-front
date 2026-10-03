@@ -1,7 +1,11 @@
 <template>
   <header class="site-nav" :class="{ open: menuOpen, scrolled: isScrolled }">
     <div class="nav-bar">
-      <router-link class="nav-brand" to="/home" @click="closeMenu">
+      <router-link
+        class="nav-brand"
+        :to="isDeliverer ? '/deliveries' : '/home'"
+        @click="closeMenu"
+      >
         <img src="@/assets/img/gallery/logo.png" alt="" class="nav-logo" />
       </router-link>
 
@@ -123,10 +127,14 @@ const displayName = computed(() => username.value || 'Mon profil')
 const avatarLetter = computed(() => (username.value || '?').charAt(0).toUpperCase())
 
 const visibleLinks = computed(() => {
-  const links = [
-    { label: 'Accueil', to: { path: '/home' } },
-    { label: 'Services', to: { path: '/home', hash: '#services' } },
-  ]
+  const links = []
+
+  if (!isDeliverer.value) {
+    links.push(
+      { label: 'Accueil', to: { path: '/home' } },
+      { label: 'Services', to: { path: '/home', hash: '#services' } },
+    )
+  }
 
   if (!isDeliverer.value) {
     links.push({ label: 'Commander', to: { path: '/home', hash: '#deliver_form' } })

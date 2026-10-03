@@ -1,3 +1,12 @@
+<script setup>
+defineProps({
+  hideClientLinks: {
+    type: Boolean,
+    default: false,
+  },
+})
+</script>
+
 <template>
   <footer class="site-footer" id="findUs">
     <div class="footer-inner">
@@ -5,7 +14,7 @@
         <p class="brand-tag">Plus proche de vous, plus proche de vos besoins.</p>
       </div>
 
-      <nav class="footer-nav" aria-label="Liens pied de page">
+      <nav v-if="!hideClientLinks" class="footer-nav" aria-label="Liens pied de page">
         <a href="#home">Accueil</a>
         <a href="#services">Services</a>
         <a href="#deliver_form">Commander</a>

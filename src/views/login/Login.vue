@@ -244,7 +244,11 @@ const handleLogin = async () => {
 
     disconnect()
     connect()
-    router.push('/home')
+
+    const role = response.data.user?.role
+    if (role === 'livreur') router.push('/deliveries')
+    else if (role === 'admin') router.push('/admin')
+    else router.push('/home')
   } catch (error) {
     feedbackType.value = 'error'
     feedback.value =

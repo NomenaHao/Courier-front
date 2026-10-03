@@ -311,17 +311,15 @@ watch(lastNotification, (notification) => {
   --line: #e4e0d8;
   --err: #b42318;
 
-  min-height: 100vh;
-  min-height: 100dvh;
-  padding: 5.5rem clamp(1.15rem, 4vw, 3rem) 2.5rem;
-  background: var(--paper);
+  padding: 0 0 1rem;
+  background: transparent;
   color: var(--ink);
   font-family: 'Outfit', system-ui, sans-serif;
 }
 
 .page-inner {
-  max-width: 1100px;
-  margin: 0 auto;
+  max-width: none;
+  margin: 0;
 }
 
 .page-head {

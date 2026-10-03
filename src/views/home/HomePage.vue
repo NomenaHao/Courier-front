@@ -1,9 +1,9 @@
 <template>
   <main class="home-page" id="top">
     <Hero :is-deliverer="isDeliverer" />
-    <Services />
+    <Services v-if="!isDeliverer" />
     <Form v-if="!isDeliverer" />
-    <Footer />
+    <Footer :hide-client-links="isDeliverer" />
   </main>
 </template>
 
