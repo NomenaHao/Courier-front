@@ -36,7 +36,7 @@
 
         <div class="nav-actions">
           <router-link class="user-chip" :to="{ path: '/profile' }">
-            <span class="user-avatar">{{ avatarLetter }}</span>
+            <img class="user-avatar" :src="avatarUrl" alt="" />
             <span class="user-meta">
               <strong>{{ displayName }}</strong>
               <small>{{ roleLabel }}</small>
@@ -81,7 +81,7 @@
 
         <div class="mobile-footer">
           <router-link class="user-chip" :to="{ path: '/profile' }" @click="closeMenu">
-            <span class="user-avatar">{{ avatarLetter }}</span>
+            <img class="user-avatar" :src="avatarUrl" alt="" />
             <span class="user-meta">
               <strong>{{ displayName }}</strong>
               <small>{{ roleLabel }}</small>
@@ -124,19 +124,21 @@ const roleLabel = computed(() => {
 })
 
 const displayName = computed(() => username.value || 'Mon profil')
-const avatarLetter = computed(() => (username.value || '?').charAt(0).toUpperCase())
+const avatarUrl = computed(
+  () => `https://api.dicebear.com/10.x/lorelei/svg?seed=${encodeURIComponent(username.value || 'user')}`,
+)
 
 const visibleLinks = computed(() => {
   const links = []
 
-  if (!isDeliverer.value) {
+  if (!isDeliverer.value && !isAdmin.value) {
     links.push(
       { label: 'Accueil', to: { path: '/home' } },
       { label: 'Services', to: { path: '/home', hash: '#services' } },
     )
   }
 
-  if (!isDeliverer.value) {
+  if (!isDeliverer.value && !isAdmin.value) {
     links.push({ label: 'Commander', to: { path: '/home', hash: '#deliver_form' } })
   }
 
@@ -402,12 +404,8 @@ onUnmounted(() => {
   width: 32px;
   height: 32px;
   flex-shrink: 0;
-  display: grid;
-  place-items: center;
-  background: var(--accent);
-  color: #fff;
-  font-size: 0.85rem;
-  font-weight: 700;
+  object-fit: cover;
+  border-radius: 8px;
 }
 
 .user-meta {
@@ -546,7 +544,6 @@ onUnmounted(() => {
 .mobile-footer .user-avatar {
   width: 40px;
   height: 40px;
-  font-size: 1rem;
 }
 
 .mobile-logout {

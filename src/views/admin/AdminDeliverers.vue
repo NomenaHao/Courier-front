@@ -14,7 +14,7 @@
           </label>
           <label class="field">
             <span>Mot de passe</span>
-            <input v-model="form.password" type="password" required minlength="6" />
+            <PasswordField v-model="form.password" required minlength="6" />
           </label>
           <label class="field">
             <span>Téléphone (optionnel)</span>
@@ -45,6 +45,7 @@
             <thead>
               <tr>
                 <th>ID</th>
+                <th></th>
                 <th>Identifiant</th>
                 <th>Téléphone</th>
                 <th>Email</th>
@@ -54,6 +55,13 @@
             <tbody>
               <tr v-for="d in deliverers" :key="d.id">
                 <td>{{ d.id }}</td>
+                <td>
+                  <img
+                    class="avatar"
+                    :src="`https://api.dicebear.com/10.x/lorelei/svg?seed=${encodeURIComponent(d.username)}`"
+                    alt=""
+                  />
+                </td>
                 <td><strong>{{ d.username }}</strong></td>
                 <td>{{ d.phone || '—' }}</td>
                 <td>{{ d.email || '—' }}</td>
@@ -86,6 +94,7 @@ import { onMounted, ref } from 'vue'
 import { authService } from '@/services/ordersservices'
 import api from '@/services/api'
 import UserEditDialog from '@/components/admin/UserEditDialog.vue'
+import PasswordField from '@/components/PasswordField.vue'
 
 const deliverers = ref([])
 const loading = ref(false)
@@ -344,6 +353,14 @@ onMounted(loadDeliverers)
 
 .link-btn.danger {
   color: var(--err);
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  object-fit: cover;
+  display: block;
 }
 
 @media (max-width: 900px) {

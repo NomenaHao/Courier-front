@@ -20,7 +20,8 @@
 
       <div v-else class="list">
         <article v-for="user in filteredUsers" :key="user.id" class="item">
-          <div class="avatar">{{ user.username.charAt(0).toUpperCase() }}</div>
+          <img class="avatar"
+            :src="`https://api.dicebear.com/10.x/lorelei/svg?seed=${encodeURIComponent(user.username)}`" alt="" />
           <div class="info">
             <strong>{{ user.username }}</strong>
             <span>{{ user.phone || 'Téléphone non renseigné' }}</span>
@@ -117,7 +118,10 @@ onMounted(async () => {
   letter-spacing: -0.02em;
 }
 
-.lead { margin: 0; color: var(--ink-soft); }
+.lead {
+  margin: 0;
+  color: var(--ink-soft);
+}
 
 .search {
   width: min(100%, 280px);
@@ -182,11 +186,8 @@ onMounted(async () => {
 .avatar {
   width: 44px;
   height: 44px;
-  display: grid;
-  place-items: center;
-  background: var(--accent);
-  color: #fff;
-  font-weight: 700;
+  border-radius: 8px;
+  object-fit: cover;
 }
 
 .info {
@@ -239,9 +240,21 @@ onMounted(async () => {
       "id id";
   }
 
-  .avatar { grid-area: avatar; }
-  .info { grid-area: info; }
-  .role { grid-area: role; justify-self: start; }
-  .id { grid-area: id; }
+  .avatar {
+    grid-area: avatar;
+  }
+
+  .info {
+    grid-area: info;
+  }
+
+  .role {
+    grid-area: role;
+    justify-self: start;
+  }
+
+  .id {
+    grid-area: id;
+  }
 }
 </style>

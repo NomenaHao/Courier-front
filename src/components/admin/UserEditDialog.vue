@@ -27,9 +27,8 @@
         </label>
         <label class="field">
           <span>Nouveau mot de passe (optionnel)</span>
-          <input
+          <PasswordField
             v-model="form.password"
-            type="password"
             autocomplete="new-password"
             minlength="6"
             placeholder="Min. 6 caractères"
@@ -50,6 +49,7 @@
 <script setup>
 import { reactive, ref, watch } from 'vue'
 import { authService } from '@/services/ordersservices'
+import PasswordField from '@/components/PasswordField.vue'
 
 const props = defineProps({
   open: { type: Boolean, default: false },

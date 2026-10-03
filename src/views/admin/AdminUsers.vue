@@ -8,6 +8,7 @@
       <table v-else>
         <thead>
           <tr>
+            <th></th>
             <th>Nom</th>
             <th>Téléphone</th>
             <th>Email</th>
@@ -17,6 +18,13 @@
         </thead>
         <tbody>
           <tr v-for="u in users" :key="u.id">
+            <td>
+              <img
+                class="avatar"
+                :src="`https://api.dicebear.com/10.x/lorelei/svg?seed=${encodeURIComponent(u.username)}`"
+                alt=""
+              />
+            </td>
             <td>{{ u.username }}</td>
             <td>{{ u.phone || '—' }}</td>
             <td>{{ u.email || '—' }}</td>
@@ -156,5 +164,13 @@ th {
 
 .link-btn.danger {
   color: #b42318;
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  object-fit: cover;
+  display: block;
 }
 </style>

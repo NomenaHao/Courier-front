@@ -3,7 +3,7 @@
     <div class="page-inner">
       <header class="page-head">
         <div class="identity">
-          <div class="avatar">{{ avatarLetter }}</div>
+          <img class="avatar" :src="avatarUrl" alt="" />
           <div>
             <p class="eyebrow">Profil</p>
             <h1 class="title">{{ userProfile.username || 'Mon profil' }}</h1>
@@ -67,7 +67,9 @@ const roleLabels = {
 }
 
 const roleLabel = computed(() => roleLabels[userProfile.value.role] || userProfile.value.role)
-const avatarLetter = computed(() => (userProfile.value.username || '?').charAt(0).toUpperCase())
+const avatarUrl = computed(
+  () => `https://api.dicebear.com/10.x/lorelei/svg?seed=${encodeURIComponent(userProfile.value.username || 'user')}`,
+)
 
 onMounted(async () => {
     try {
@@ -142,13 +144,8 @@ const saveProfile = async () => {
   width: 72px;
   height: 72px;
   flex-shrink: 0;
-  display: grid;
-  place-items: center;
-  background: var(--accent);
-  color: #fff;
-  font-family: 'Fraunces', Georgia, serif;
-  font-size: 1.8rem;
-  font-weight: 700;
+  object-fit: cover;
+  border-radius: 12px;
 }
 
 .eyebrow {
@@ -284,7 +281,6 @@ const saveProfile = async () => {
   .avatar {
     width: 56px;
     height: 56px;
-    font-size: 1.4rem;
   }
 }
 </style>

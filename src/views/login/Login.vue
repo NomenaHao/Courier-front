@@ -15,13 +15,7 @@
     <div class="auth-shell">
       <div class="auth-card">
         <header class="auth-brand-row">
-          <img
-            v-if="logoOk"
-            src="@/assets/img/gallery/logo.png"
-            alt=""
-            class="brand-logo"
-            @error="logoOk = false"
-          />
+          <img v-if="logoOk" src="@/assets/img/gallery/logo.png" alt="" class="brand-logo" @error="logoOk = false" />
           <span v-else class="brand-wordmark">Quick<span class="dot">.</span></span>
         </header>
 
@@ -36,37 +30,19 @@
           </div>
           <!-- <p class="carousel-caption">{{ slides[activeSlide].text }}</p> -->
           <div class="carousel-dots" role="tablist" aria-label="Points forts">
-            <button
-              v-for="(slide, index) in slides"
-              :key="slide.text"
-              type="button"
-              class="dot-btn"
-              :class="{ active: activeSlide === index }"
-              :aria-selected="activeSlide === index"
-              @click="activeSlide = index"
-            />
+            <button v-for="(slide, index) in slides" :key="slide.text" type="button" class="dot-btn"
+              :class="{ active: activeSlide === index }" :aria-selected="activeSlide === index"
+              @click="activeSlide = index" />
           </div>
         </div>
 
         <div class="auth-tabs" role="tablist">
-          <button
-            type="button"
-            role="tab"
-            class="auth-tab"
-            :class="{ active: isLogin }"
-            :aria-selected="isLogin"
-            @click="isLogin = true"
-          >
+          <button type="button" role="tab" class="auth-tab" :class="{ active: isLogin }" :aria-selected="isLogin"
+            @click="isLogin = true">
             Connexion
           </button>
-          <button
-            type="button"
-            role="tab"
-            class="auth-tab"
-            :class="{ active: !isLogin }"
-            :aria-selected="!isLogin"
-            @click="isLogin = false"
-          >
+          <button type="button" role="tab" class="auth-tab" :class="{ active: !isLogin }" :aria-selected="!isLogin"
+            @click="isLogin = false">
             Inscription
           </button>
           <span class="auth-tab-indicator" :class="{ right: !isLogin }"></span>
@@ -75,32 +51,17 @@
         <p v-if="feedback" class="auth-feedback" :class="feedbackType">{{ feedback }}</p>
 
         <Transition name="auth-fade" mode="out-in">
-          <form
-            v-if="isLogin"
-            key="login"
-            class="auth-form"
-            @submit.prevent="handleLogin"
-          >
+          <form v-if="isLogin" key="login" class="auth-form" @submit.prevent="handleLogin">
             <label class="field">
               <span>Nom d'utilisateur</span>
-              <input
-                v-model="loginForm.username"
-                type="text"
-                autocomplete="username"
-                placeholder="ex. jean.dupont"
-                required
-              />
+              <input v-model="loginForm.username" type="text" autocomplete="username" placeholder="ex. jean.dupont"
+                required />
             </label>
 
             <label class="field">
               <span>Mot de passe</span>
-              <input
-                v-model="loginForm.password"
-                type="password"
-                autocomplete="current-password"
-                placeholder="••••••••"
-                required
-              />
+              <PasswordField v-model="loginForm.password" autocomplete="current-password" placeholder="••••••••"
+                required />
             </label>
 
             <div class="field-meta">
@@ -113,53 +74,23 @@
             </button>
           </form>
 
-          <form
-            v-else
-            key="signup"
-            class="auth-form"
-            @submit.prevent="handleSignup"
-          >
+          <form v-else key="signup" class="auth-form" @submit.prevent="handleSignup">
             <label class="field">
               <span>Nom d'utilisateur</span>
-              <input
-                v-model="signupForm.username"
-                type="text"
-                autocomplete="username"
-                placeholder="Choisissez un identifiant"
-                required
-              />
+              <input v-model="signupForm.username" type="text" autocomplete="username"
+                placeholder="Choisissez un identifiant" required />
             </label>
 
             <label class="field">
               <span>Mot de passe</span>
-              <input
-                v-model="signupForm.password"
-                type="password"
-                autocomplete="new-password"
-                placeholder="••••••••"
-                required
-              />
+              <PasswordField v-model="signupForm.password" autocomplete="new-password" placeholder="••••••••" required />
             </label>
 
             <label class="field">
               <span>Confirmer le mot de passe</span>
-              <input
-                v-model="signupForm.confirmPassword"
-                type="password"
-                autocomplete="new-password"
-                placeholder="••••••••"
-                required
-              />
+              <PasswordField v-model="signupForm.confirmPassword" autocomplete="new-password" placeholder="••••••••" required />
             </label>
 
-            <label class="field">
-              <span>Rôle</span>
-              <select v-model="signupForm.role" required>
-                <option disabled value="">Choisir un rôle</option>
-                <option value="client">Client</option>
-                <option value="livreur">Livreur</option>
-              </select>
-            </label>
 
             <button class="submit-btn" type="submit" :disabled="loading">
               <span v-if="!loading">Créer mon compte</span>
@@ -191,6 +122,7 @@ import { useWebSocket } from '@/composables/useWebSocket'
 import iconTrack from '@/assets/img/icons/services-1.svg'
 import iconNearby from '@/assets/img/icons/services-2.svg'
 import iconOrder from '@/assets/img/icons/services-3.svg'
+import PasswordField from '@/components/PasswordField.vue'
 
 const router = useRouter()
 const { connect, disconnect } = useWebSocket()
@@ -229,7 +161,7 @@ const signupForm = ref({
   username: '',
   password: '',
   confirmPassword: '',
-  role: '',
+  role: 'client',
 })
 
 const handleLogin = async () => {
@@ -278,7 +210,7 @@ const handleSignup = async () => {
     })
     isLogin.value = true
     loginForm.value.username = username
-    signupForm.value = { username: '', password: '', confirmPassword: '', role: '' }
+    signupForm.value = { username: '', password: '', confirmPassword: '', role: 'client' }
     feedbackType.value = 'success'
     feedback.value = 'Compte créé. Vous pouvez vous connecter.'
     loading.value = false
@@ -344,12 +276,10 @@ const handleSignup = async () => {
 .hero-shade {
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    90deg,
-    rgba(0, 0, 0, 0.55) 0%,
-    rgba(0, 0, 0, 0.25) 55%,
-    rgba(0, 0, 0, 0.45) 100%
-  );
+  background: linear-gradient(90deg,
+      rgba(0, 0, 0, 0.55) 0%,
+      rgba(0, 0, 0, 0.25) 55%,
+      rgba(0, 0, 0, 0.45) 100%);
 }
 
 .hero-copy {
@@ -697,6 +627,7 @@ const handleSignup = async () => {
     opacity: 0;
     transform: translateY(12px);
   }
+
   to {
     opacity: 1;
     transform: none;
