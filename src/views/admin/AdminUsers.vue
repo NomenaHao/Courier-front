@@ -5,7 +5,8 @@
       <p v-if="error" class="lead">{{ error }}</p>
       <p v-else-if="loading" class="lead">Chargement…</p>
       <p v-else-if="!users.length" class="lead">Aucun utilisateur.</p>
-      <table v-else>
+      <div v-else class="table-wrap">
+      <table>
         <thead>
           <tr>
             <th></th>
@@ -37,7 +38,10 @@
             </td>
           </tr>
         </tbody>
+        
       </table>
+    </div>
+
     </section>
 
     <UserEditDialog
@@ -103,7 +107,9 @@ onMounted(loadUsers)
   --line: #e4e0d8;
   --ink-soft: #475467;
 }
-
+.table-wrap {
+  overflow-x: auto;
+}
 .card {
   background: var(--panel);
   border: 1px solid var(--line);
